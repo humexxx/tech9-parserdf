@@ -1,5 +1,83 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Git Workflow
+
+Este proyecto utiliza **Git Flow simplificado** con semantic commits y versionado automático.
+
+### Branch Strategy
+
+- **`main`**: Rama de producción (protegida). Cada merge genera automáticamente una nueva versión.
+- **`develop`**: Rama de desarrollo principal. Todo el trabajo diario se hace aquí o en feature branches.
+- **Feature branches**: Ramas temporales para nuevas funcionalidades o fixes.
+
+### Workflow de Desarrollo
+
+1. **Crear feature branch desde develop**:
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/nombre-descriptivo
+   # o
+   git checkout -b fix/nombre-del-bug
+   ```
+
+2. **Hacer commits semánticos**:
+   ```bash
+   # Opción 1: Usar commitizen (recomendado)
+   git add .
+   npm run commit
+   
+   # Opción 2: Commit manual con formato conventional
+   git commit -m "feat: agregar nueva funcionalidad"
+   git commit -m "fix: corregir bug en componente"
+   ```
+
+3. **Push y crear PR a develop**:
+   ```bash
+   git push origin feature/nombre-descriptivo
+   # Crear Pull Request a develop en GitHub
+   ```
+
+4. **Cuando esté listo para release**:
+   - Crear Pull Request de `develop` → `main`
+   - Al mergear, semantic-release generará automáticamente:
+     - Nueva versión en package.json
+     - Tag de git
+     - GitHub Release
+     - CHANGELOG.md actualizado
+
+5. **Sincronizar develop después del release**:
+   ```bash
+   git checkout develop
+   git merge main
+   git push origin develop
+   ```
+
+### Tipos de Commits
+
+- `feat`: Nueva funcionalidad (incrementa versión MINOR: 1.0.0 → 1.1.0)
+- `fix`: Corrección de bug (incrementa versión PATCH: 1.0.0 → 1.0.1)
+- `docs`: Cambios en documentación
+- `style`: Cambios de formato (no afectan el código)
+- `refactor`: Refactorización de código
+- `perf`: Mejoras de rendimiento
+- `test`: Agregar o modificar tests
+- `chore`: Tareas de mantenimiento
+- `ci`: Cambios en CI/CD
+- `build`: Cambios en el sistema de build
+
+**Breaking Changes**: Agregar `BREAKING CHANGE:` en el body del commit o `!` después del tipo para incrementar versión MAJOR (1.0.0 → 2.0.0):
+```bash
+git commit -m "feat!: cambiar API de autenticación" -m "BREAKING CHANGE: el método login ahora requiere email en lugar de username"
+```
+
+### Branch Naming Convention
+
+- `feature/nombre-descriptivo`: Nuevas funcionalidades
+- `fix/descripcion-del-bug`: Correcciones de bugs
+- `chore/tarea`: Tareas de mantenimiento
+- `docs/actualizacion`: Cambios en documentación
+
 ## Getting Started
 
 First, run the development server:

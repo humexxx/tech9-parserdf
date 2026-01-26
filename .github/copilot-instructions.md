@@ -26,3 +26,22 @@
 - Follow the existing color scheme (primary: #3CBCEC / oklch(0.75 0.11 210))
 - Use CSS variables from globals.css for theming
 - Maintain consistent spacing and layout patterns
+
+## Git Workflow & Commits
+- Use conventional commits format: `type(scope): description`
+- Always use `npm run commit` (commitizen) for guided commits
+- Create feature branches from develop: `feature/name`, `fix/name`, `chore/name`
+- Never commit directly to main
+- Commit types:
+  - `feat`: New feature (bumps MINOR version)
+  - `fix`: Bug fix (bumps PATCH version)
+  - `docs`: Documentation only
+  - `style`: Code formatting (no logic change)
+  - `refactor`: Code restructuring
+  - `perf`: Performance improvements
+  - `test`: Adding/modifying tests
+  - `chore`: Maintenance tasks
+  - `ci`: CI/CD changes
+  - `build`: Build system changes
+- Use `feat!:` or `BREAKING CHANGE:` in commit body for breaking changes (bumps MAJOR version)
+- Keep commit messages concise and descriptive in English
