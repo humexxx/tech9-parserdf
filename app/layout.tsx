@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inconsolata } from "next/font/google";
 import AppBar from "./components/AppBar";
+import ThemeProvider from "./components/ThemeProvider";
 import "./globals.css";
 
 const inconsolata = Inconsolata({
@@ -19,12 +20,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${inconsolata.variable} antialiased`}
       >
-        <AppBar />
-        {children}
+        <ThemeProvider>
+          <AppBar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
