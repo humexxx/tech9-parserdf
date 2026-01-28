@@ -84,9 +84,41 @@ export async function downloadResume(
   format: string,
   fileName: string
 ): Promise<void> {
-  // TODO: Implement PDF generation and download logic here
-  // This will convert the ResumeData to a formatted PDF
-  // and trigger a download
-  
-  throw new Error("Not implemented yet");
+  try {
+    // Make POST request to PDF generation API
+    const response = await fetch('/api/download-pdf', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        resumeData,
+        format,
+        fileName,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate PDF');
+    }
+
+    // Get the PDF blob from response
+    const blob = await response.blob();
+
+    // Create a download link and trigger download
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileName.replace(/\.[^/.]+$/, "")}_Resume.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error downloading resume:', error);
+    throw error;
+  }
 }
