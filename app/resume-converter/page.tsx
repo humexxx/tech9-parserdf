@@ -7,6 +7,7 @@ import PreviewStep from "../components/resume-converter/PreviewStep";
 import UploadStep from "../components/resume-converter/UploadStep";
 import { Heading, Text } from "../components/Typography";
 import { ResumeData } from "../types/resume";
+import { downloadResume } from "../lib/resume-api";
 
 type Step = "upload" | "fileList" | "formatSelection" | "preview";
 
@@ -50,12 +51,9 @@ export default function ResumeConverterPage() {
   };
 
   const handleDownload = async (resumeData: ResumeData, fileName: string) => {
-    // TODO: Call downloadResume API when ready
     try {
-      // const format = selectedFormats[fileName] || "skill-at-top";
-      // await downloadResume(resumeData, format, fileName);
-      alert("Download functionality is not yet implemented.");
-      console.log("Downloading resume:", fileName);
+      const format = selectedFormats[fileName] || "skill-at-top";
+      await downloadResume(resumeData, format, fileName);
     } catch (error) {
       console.error("Error downloading resume:", error);
     }
@@ -96,7 +94,7 @@ export default function ResumeConverterPage() {
         )}
 
         {currentStep === "fileList" && (
-          <FileListStep 
+          <FileListStep
             files={selectedFiles}
             onRemoveFile={handleRemoveFile}
             onRenameFile={handleRenameFile}

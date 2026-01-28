@@ -1,0 +1,260 @@
+import { ResumeData } from "@/app/types/resume";
+
+export function generateResumeHTML(data: ResumeData, format: string): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${data.name} - Resume</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inconsolata', monospace, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: white;
+      color: #171717;
+      padding: 24px 48px 48px 48px;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      margin-bottom: 16px;
+    }
+    
+    .logo {
+      width: 128px;
+      height: 36px;
+      margin-bottom: 16px;
+    }
+    
+    .divider {
+      border: none;
+      border-top: 1px solid #d4d4d4;
+      margin-bottom: 24px;
+    }
+    
+    /* Name and Contact */
+    h1 {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #171717;
+    }
+    
+    .contact-info {
+      font-size: 14px;
+      color: #171717;
+      margin-bottom: 4px;
+    }
+    
+    /* Section Headers */
+    h2 {
+      font-size: 18px;
+      font-weight: bold;
+      color: #3CBCEC;
+      margin-bottom: 8px;
+      margin-top: 24px;
+    }
+    
+    /* Summary */
+    .summary {
+      font-size: 14px;
+      color: #171717;
+      margin-bottom: 24px;
+    }
+    
+    /* Skills - NO BACKGROUND COLOR */
+    .skills-section {
+      margin-bottom: 24px;
+    }
+    
+    .skills-container {
+      padding: 16px;
+      border-radius: 4px;
+      /* NO background color - removed #E6F7FC */
+    }
+    
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .skill-item {
+      font-size: 14px;
+      color: #171717;
+    }
+    
+    .skill-item:not(:last-child)::after {
+      content: ",";
+    }
+    
+    /* Experience */
+    .experience-item {
+      margin-bottom: 16px;
+    }
+    
+    .experience-header {
+      font-size: 14px;
+      font-weight: bold;
+      color: #171717;
+    }
+    
+    .experience-title {
+      font-style: italic;
+    }
+    
+    .experience-period {
+      font-size: 12px;
+      color: #52525b;
+      margin-bottom: 4px;
+    }
+    
+    .experience-description {
+      font-size: 14px;
+      color: #171717;
+      margin-bottom: 4px;
+    }
+    
+    .experience-technologies {
+      font-size: 14px;
+      color: #171717;
+    }
+    
+    /* Education */
+    .education-item {
+      margin-bottom: 8px;
+    }
+    
+    .education-header {
+      font-size: 14px;
+      font-weight: bold;
+      color: #171717;
+    }
+    
+    .education-degree {
+      font-style: italic;
+    }
+    
+    .education-period {
+      font-size: 12px;
+      color: #52525b;
+    }
+    
+    /* Awards and Projects */
+    .text-content {
+      font-size: 14px;
+      color: #171717;
+      margin-bottom: 24px;
+    }
+    
+    /* Spacing */
+    section {
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with Logo -->
+    <div class="header">
+      <svg class="logo" viewBox="0 0 710 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M78.2838 137.761L0 91.1186V46.6424L78.1436 0L156.427 46.6424V95.162L78.2838 137.761ZM639.128 174.152H658.137L697.141 107.87C698.399 105.415 699.795 102.816 701.335 100.073C702.875 97.1845 704.41 94.2965 705.667 91.264C706.925 88.0871 708.044 84.7661 708.886 81.3001C709.584 77.5456 710 73.7911 710 70.0367C710 63.5387 708.742 57.1847 706.366 51.2642C703.989 45.7769 700.637 40.7228 696.304 36.5351C691.971 32.3474 686.797 29.0261 681.207 26.8601C668.902 22.2391 655.483 22.2391 643.322 26.8601C637.732 29.0261 632.557 32.3474 628.225 36.5351C623.892 40.5784 620.396 45.6325 618.158 51.2642C615.643 57.1847 614.524 63.5387 614.524 70.0367C614.524 76.2461 615.643 82.4556 617.881 88.2316C622.214 99.3505 630.602 108.159 641.366 112.78C647.095 115.235 653.107 116.39 659.256 116.39C663.173 116.39 667.085 115.812 670.858 114.802L671.353 114.663C672.754 114.273 674.24 113.858 675.611 113.213L639.128 174.152ZM649.472 40.1451C653.527 38.5567 657.86 37.8347 662.193 37.8347C666.525 37.8347 670.858 38.5567 674.774 40.0007C682.326 43.0332 688.193 49.0982 690.991 56.7517C692.526 60.9392 693.229 65.4157 693.229 69.8922C693.368 74.2246 692.526 78.4121 690.852 82.4556C689.174 86.3546 686.936 89.8201 684.143 92.708C681.345 95.7405 677.988 98.051 674.215 99.6395C658.42 106.571 640.104 98.9175 633.394 82.5996C631.859 78.5566 631.018 74.3686 631.018 70.0367C631.018 65.5602 631.721 61.0837 633.256 56.8962C636.053 49.2426 642.065 43.0332 649.472 40.1451ZM261.41 174.15H245.055V41.5875H197.106V25.8475H309.359V41.5875H261.41V174.15ZM340.396 176.605C333.686 176.75 326.976 175.45 320.686 172.851C314.954 170.396 309.782 166.786 305.448 162.165C301.115 157.4 297.76 151.912 295.663 145.847C293.286 139.205 292.168 132.129 292.308 125.053C292.308 118.122 293.426 111.335 295.803 104.836C298.039 98.7715 301.394 93.284 305.728 88.5191C309.921 83.8981 315.094 80.2881 320.686 77.6886C326.697 75.0896 333.267 73.6451 339.837 73.7896C346.408 73.6451 352.978 74.9451 358.988 77.6886C364.301 80.1436 369.053 83.7536 372.968 88.0856C376.742 92.418 379.678 97.472 381.495 102.815C383.313 108.158 384.291 113.789 384.291 119.566V129.963H307.545C307.825 132.562 308.244 135.161 308.943 137.761C309.921 141.804 311.739 145.558 314.115 148.88C316.771 152.634 320.266 155.811 324.18 158.266C328.374 160.865 333.826 162.165 340.396 162.165C346.267 162.165 351.999 160.721 357.311 157.833C362.483 155.233 366.677 151.19 369.753 146.136L370.731 144.403L382.054 154.223L381.216 155.522C376.882 162.598 370.731 168.23 363.322 171.696C356.332 175.017 348.364 176.605 340.396 176.605ZM307.965 115.378H369.194C369.054 112.057 368.215 108.88 366.957 105.992C365.419 102.526 363.322 99.4935 360.666 96.75C357.87 94.006 354.655 91.9845 351.16 90.396C347.386 88.8076 343.472 88.0856 339.418 88.0856C334.106 87.9416 328.793 89.241 324.18 91.9845C320.406 94.295 317.051 97.3275 314.395 100.937C312.158 103.97 310.481 107.291 309.362 110.757C308.524 112.923 308.104 114.367 307.965 115.378ZM434.054 172.85C440.345 175.305 447.195 176.604 454.045 176.604C460.615 176.604 467.185 175.16 473.615 172.561C479.766 169.529 485.079 165.197 489.412 159.709L490.53 158.41L478.788 148.446L477.67 149.89C474.734 153.644 471.239 156.677 467.325 158.987C463.271 161.153 458.798 162.308 454.324 162.308C449.431 162.453 444.399 161.442 439.925 159.42C435.871 157.543 432.097 154.799 429.022 151.478C425.947 148.157 423.709 144.113 422.172 139.781C418.957 130.395 418.957 120.287 422.172 110.9C423.709 106.568 425.947 102.525 429.022 99.204C432.097 95.7385 435.871 93.139 439.925 91.2615C444.539 89.2401 449.431 88.2296 454.324 88.3736C458.658 88.3736 462.991 89.3846 466.766 91.5505C470.82 93.861 474.454 96.8935 477.529 100.504L478.508 101.659L490.67 92.2725L489.412 90.8285C484.938 85.6301 479.487 81.4426 473.476 78.4101C467.464 75.3776 460.755 73.9331 454.045 73.9331C447.195 73.7891 440.485 75.0886 434.054 77.6876C428.183 79.9981 422.731 83.7526 418.258 88.3736C413.924 92.9945 410.429 98.6265 408.053 104.691C403.16 117.976 403.16 132.561 408.053 145.846C410.29 151.911 413.785 157.543 418.258 162.164C422.731 166.785 428.183 170.395 434.054 172.85ZM593.698 174.44H578.462V116.967C578.462 113.357 578.179 109.747 577.481 106.137C576.922 102.96 575.803 99.7835 574.268 97.0395C572.728 94.4405 570.633 92.2745 567.974 90.83C564.622 89.0975 560.988 88.3756 557.21 88.5201C553.159 88.5201 549.243 89.242 545.469 90.83C541.835 92.2745 538.621 94.585 535.962 97.473C533.17 100.794 530.932 104.693 529.535 108.881C527.857 114.224 527.015 119.855 527.158 125.343V174.296H511.918L511.64 25.9931H526.876L527.158 89.0975C529.812 85.4876 533.026 82.3106 536.804 79.8556C542.815 75.8121 549.941 73.7906 557.071 73.9351C564.483 73.9351 570.495 75.0901 575.243 77.5451C579.719 79.7111 583.492 83.0326 586.429 87.2201C589.226 91.2635 591.044 96.029 592.019 100.794C592.999 105.848 593.559 111.047 593.559 116.245L593.698 174.44ZM6.01298 156.823L78.1456 200L156.429 153.357V122.599L78.006 165.343L34.9499 139.639L6.01298 156.823Z" fill="#3CBCEC"/>
+      </svg>
+    </div>
+    
+    <hr class="divider" />
+    
+    <!-- Name and Contact Info -->
+    <h1>${data.name}</h1>
+    <p class="contact-info">${data.location}</p>
+    <p class="contact-info">${data.linkedIn}</p>
+    
+    <!-- Summary -->
+    <section>
+      <h2>SUMMARY</h2>
+      <p class="summary">${data.summary}</p>
+    </section>
+    
+    <!-- Skills - Top Position -->
+    ${format === "skill-at-top" ? `
+    <section class="skills-section">
+      <h2>SKILLS</h2>
+      <div class="skills-container">
+        <div class="skills-list">
+          ${data.skills.map(skill => `<span class="skill-item">${skill}</span>`).join('')}
+        </div>
+      </div>
+    </section>
+    ` : ''}
+    
+    <!-- Experience -->
+    <section>
+      <h2>EXPERIENCE</h2>
+      ${data.experience.map(exp => `
+        <div class="experience-item">
+          <h3 class="experience-header">
+            ${exp.company}, ${exp.location} - <span class="experience-title">${exp.title}</span>
+          </h3>
+          <p class="experience-period">${exp.period}</p>
+          <p class="experience-description">${exp.description}</p>
+          <p class="experience-technologies">Technologies Used: ${exp.technologies}</p>
+        </div>
+      `).join('')}
+    </section>
+    
+    <!-- Education -->
+    <section>
+      <h2>EDUCATION</h2>
+      ${data.education.map(edu => `
+        <div class="education-item">
+          <h3 class="education-header">
+            ${edu.school}, ${edu.location} - <span class="education-degree">${edu.degree}</span>
+          </h3>
+          <p class="education-period">${edu.period}</p>
+        </div>
+      `).join('')}
+    </section>
+    
+    <!-- Awards -->
+    <section>
+      <h2>SPECIAL AWARDS/CERTIFICATIONS</h2>
+      <p class="text-content">${data.awards}</p>
+    </section>
+    
+    <!-- Projects -->
+    ${data.projects ? `
+    <section>
+      <h2>PROJECT SPECIFICATIONS</h2>
+      <p class="text-content">${data.projects}</p>
+    </section>
+    ` : ''}
+    
+    <!-- Skills - Bottom Position -->
+    ${format === "skill-at-bottom" ? `
+    <section class="skills-section">
+      <h2>SKILLS</h2>
+      <div class="skills-container">
+        <div class="skills-list">
+          ${data.skills.map(skill => `<span class="skill-item">${skill}</span>`).join('')}
+        </div>
+      </div>
+    </section>
+    ` : ''}
+  </div>
+</body>
+</html>
+  `.trim();
+}
