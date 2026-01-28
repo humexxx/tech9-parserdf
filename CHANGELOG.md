@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/humexxx/tech9-parserdf/compare/v1.1.0...v1.2.0) (2026-01-28)
+
+
+### Features
+
+* add download pdf feature ([cc43f13](https://github.com/humexxx/tech9-parserdf/commit/cc43f135d6734a509ace0de776b4aff1806e9cf1))
+
 # [1.1.0](https://github.com/humexxx/tech9-parserdf/compare/v1.0.0...v1.1.0) (2026-01-28)
 
 
