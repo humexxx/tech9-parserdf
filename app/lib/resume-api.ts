@@ -36,19 +36,47 @@ const getMockResumeData = (fileName: string): ResumeData => ({
   skills: ["Skill 1", "Skill 2", "Skill 3", "Skill 4", "Skill 5", "Skill 6", "Skill 7", "Skill 8"]
 });
 
-export async function processResumes(
-  files: File[],
-  formats: Record<string, string>
-): Promise<{ fileName: string; data: ResumeData }[]> {
+export async function processResume(
+  file: File,
+  format: string
+): Promise<ResumeData> {
   // TODO: Implement LLM parsing logic here
-  // This will send the files to an API endpoint that processes them with LLM
+  // This will send the file to an API endpoint that processes it with LLM
   // and returns the structured ResumeData
   
+  // Simulate processing time
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
   // For now, return mock data
-  return files.map(file => ({
-    fileName: file.name,
-    data: getMockResumeData(file.name)
-  }));
+  return getMockResumeData(file.name);
+}
+
+export async function processResumes(
+  files: File[],
+  formats: Record<string, string>,
+  onProgress?: (fileName: string, data: ResumeData, index: number) => void
+): Promise<{ fileName: string; data: ResumeData }[]> {
+  const results: { fileName: string; data: ResumeData }[] = [];
+  
+  // Process files one by one
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const format = formats[file.name] || "skill-at-top";
+    
+    const data = await processResume(file, format);
+    
+    results.push({
+      fileName: file.name,
+      data
+    });
+    
+    // Call progress callback if provided
+    if (onProgress) {
+      onProgress(file.name, data, i);
+    }
+  }
+  
+  return results;
 }
 
 export async function downloadResume(
