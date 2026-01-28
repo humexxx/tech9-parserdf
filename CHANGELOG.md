@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/humexxx/tech9-parserdf/compare/v1.0.0...v1.1.0) (2026-01-28)
+
+
+### Features
+
+* enhance button styles and spacing in BulkFormattingView, EditableResume, FileListStep ([5a611e2](https://github.com/humexxx/tech9-parserdf/commit/5a611e233e9fb1c5452e2e397f1dca9cc2879549))
+
 # 1.0.0 (2026-01-28)
 
 
