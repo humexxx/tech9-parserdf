@@ -113,10 +113,10 @@ export default function BulkFormattingView({ fileCount, onContinue }: BulkFormat
       </div>
 
       {/* Continue Button */}
-      <div className="flex flex-col items-start pt-6">
+      <div className="flex flex-col items-start pt-6 mb-8">
         <button
           onClick={handleContinue}
-          className="bg-black dark:bg-white text-white dark:text-black px-9 py-4 font-inconsolata text-[16px] leading-[20px] text-center hover:opacity-90 transition-opacity"
+          className="bg-black hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white px-9 py-4 font-inconsolata text-[16px] leading-[20px] text-center transition-colors"
         >
           Continue to Preview
         </button>

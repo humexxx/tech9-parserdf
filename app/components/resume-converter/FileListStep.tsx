@@ -111,7 +111,7 @@ export default function FileListStep({ files, onRemoveFile, onRenameFile, onCont
       
       <button 
         onClick={onContinue}
-        className="bg-black dark:bg-white text-white dark:text-black px-6 py-4 w-[345px] font-inconsolata text-[16px] leading-[20px] text-center hover:opacity-90 transition-opacity mt-20"
+        className="bg-black hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white px-6 py-4 w-[345px] font-inconsolata text-[16px] leading-[20px] text-center transition-colors mt-20"
       >
         Continue to Selecting Format
       </button>
