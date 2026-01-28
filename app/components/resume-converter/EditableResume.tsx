@@ -49,7 +49,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
   };
 
   return (
-    <div className="w-full max-w-175 p-12 bg-white">
+    <div className="w-full max-w-175 p-12 bg-white dark:bg-zinc-800">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <div className="h-9 w-32 relative" style={{ aspectRatio: '32/9' }}>
@@ -68,7 +68,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Name */}
       <div 
-        className={`mb-2 cursor-pointer relative group ${editingSection === "name" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-2 cursor-pointer relative group ${editingSection === "name" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("name")}
       >
         {editingSection !== "name" && (
@@ -106,7 +106,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       
       {/* Location */}
       <div 
-        className={`cursor-pointer relative group ${editingSection === "location" ? "ring-2 ring-[#3CBCEC] rounded p-2 mb-1" : "hover:bg-gray-50 rounded p-2 mb-1"}`}
+        className={`cursor-pointer relative group ${editingSection === "location" ? "ring-2 ring-[#3CBCEC] rounded p-2 mb-1" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2 mb-1"}`}
         onClick={(e) => { e.stopPropagation(); handleSectionClick("location"); }}
       >
         {editingSection !== "location" && (
@@ -147,7 +147,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* LinkedIn */}
       <div 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "linkedIn" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "linkedIn" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={(e) => { e.stopPropagation(); handleSectionClick("linkedIn"); }}
       >
         {editingSection !== "linkedIn" && (
@@ -188,7 +188,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Summary */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "summary" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "summary" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("summary")}
       >
         {editingSection !== "summary" && (
@@ -226,7 +226,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       {/* Skills - Top position */}
       {format === "skill-at-top" && (
         <section 
-          className={`mb-6 cursor-pointer relative group ${editingSection === "skills" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+          className={`mb-6 cursor-pointer relative group ${editingSection === "skills" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
           onClick={() => handleSectionClick("skills")}
         >
           {editingSection !== "skills" && (
@@ -235,7 +235,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
           <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SKILLS</h2>
           {editingSection === "skills" ? (
             <div onClick={(e) => e.stopPropagation()}>
-              <div className="bg-[#E6F7FC] p-4 rounded">
+              <div className="bg-[#E6F7FC] dark:bg-zinc-700 p-4 rounded">
                 <input
                   type="text"
                   value={editedData?.skills.join(", ") || ""}
@@ -262,7 +262,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
               </div>
             </div>
           ) : (
-            <div className="bg-[#E6F7FC] p-4 rounded">
+            <div className="bg-[#E6F7FC] dark:bg-zinc-700 p-4 rounded">
               <div className="flex flex-wrap gap-2">
                 {displayData.skills.map((skill, idx) => (
                   <span key={idx} className="text-sm">{skill}</span>
@@ -275,7 +275,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Experience */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "experience" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "experience" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("experience")}
       >
         {editingSection !== "experience" && (
@@ -338,7 +338,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
                     newExp[idx] = { ...newExp[idx], period: e.target.value };
                     setEditedData(prev => ({ ...prev, experience: newExp }));
                   }}
-                  className="text-xs text-gray-600 w-full border-b border-gray-300 mb-1 focus:outline-none"
+                  className="text-xs text-gray-600 dark:text-zinc-400 w-full border-b border-gray-300 mb-1 focus:outline-none"
                   placeholder="MONTH 20XX - PRESENT"
                 />
                 <textarea
@@ -403,7 +403,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
               <h3 className="font-bold text-sm">
                 {exp.company}, {exp.location} - <span className="italic">{exp.title}</span>
               </h3>
-              <p className="text-xs text-gray-600 mb-1">{exp.period}</p>
+              <p className="text-xs text-gray-600 dark:text-zinc-400 mb-1">{exp.period}</p>
               <p className="text-sm mb-1">{exp.description}</p>
               <p className="text-sm">Technologies Used: {exp.technologies}</p>
             </div>
@@ -413,7 +413,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Education */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "education" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "education" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("education")}
       >
         {editingSection !== "education" && (
@@ -476,7 +476,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
                     newEdu[idx] = { ...newEdu[idx], period: e.target.value };
                     setEditedData(prev => ({ ...prev, education: newEdu }));
                   }}
-                  className="text-xs text-gray-600 w-full border-b border-gray-300 focus:outline-none"
+                  className="text-xs text-gray-600 dark:text-zinc-400 w-full border-b border-gray-300 focus:outline-none"
                   placeholder="MONTH 20XX - MONTH 20XX"
                 />
               </div>
@@ -518,7 +518,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
               <h3 className="font-bold text-sm">
                 {edu.school}, {edu.location} - <span className="italic">{edu.degree}</span>
               </h3>
-              <p className="text-xs text-gray-600">{edu.period}</p>
+              <p className="text-xs text-gray-600 dark:text-zinc-400">{edu.period}</p>
             </div>
           ))
         )}
@@ -526,7 +526,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Awards */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "awards" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "awards" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("awards")}
       >
         {editingSection !== "awards" && (
@@ -563,7 +563,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Projects */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "projects" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "projects" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("projects")}
       >
         {editingSection !== "projects" && (
@@ -602,7 +602,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       {/* Skills - Bottom position */}
       {format === "skill-at-bottom" && (
         <section 
-          className={`mb-6 cursor-pointer relative group ${editingSection === "skills" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 rounded p-2"}`}
+          className={`mb-6 cursor-pointer relative group ${editingSection === "skills" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
           onClick={() => handleSectionClick("skills")}
         >
           {editingSection !== "skills" && (
@@ -611,7 +611,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
           <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SKILLS</h2>
           {editingSection === "skills" ? (
             <div onClick={(e) => e.stopPropagation()}>
-              <div className="bg-[#E6F7FC] p-4 rounded">
+              <div className="bg-[#E6F7FC] dark:bg-zinc-700 p-4 rounded">
                 <input
                   type="text"
                   value={editedData?.skills.join(", ") || ""}
@@ -638,7 +638,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
               </div>
             </div>
           ) : (
-            <div className="bg-[#E6F7FC] p-4 rounded">
+            <div className="bg-[#E6F7FC] dark:bg-zinc-700 p-4 rounded">
               <div className="flex flex-wrap gap-2">
                 {displayData.skills.map((skill, idx) => (
                   <span key={idx} className="text-sm">{skill}</span>

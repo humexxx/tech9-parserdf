@@ -104,7 +104,7 @@ export default function IndividualFormattingView({ files, onContinue }: Individu
 
         <button
           onClick={handleContinue}
-          className="bg-black dark:bg-white text-white dark:text-black px-9 py-4 w-86.25 mt-6 hover:opacity-90 transition-opacity"
+          className="bg-black hover:bg-zinc-800 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-white px-9 py-4 w-86.25 mt-6 mb-8 transition-colors"
         >
           <span className="font-inconsolata text-[16px] leading-5">
             Continue to Preview
@@ -113,7 +113,7 @@ export default function IndividualFormattingView({ files, onContinue }: Individu
       </div>
 
       {/* Right side - Preview panel */}
-      <div className="fixed right-0 top-17 h-239 w-158.5 bg-[#f8f7f3] dark:bg-zinc-900 flex flex-col gap-6 pt-9 px-6 pb-[10px]">
+      <div className="fixed right-0 top-17 h-239 w-158.5 bg-[#f8f7f3] dark:bg-zinc-900 flex flex-col gap-6 pt-9 px-6 pb-2.5">
         {/* Preview tabs */}
         <div className="flex items-start w-full">
           <button
