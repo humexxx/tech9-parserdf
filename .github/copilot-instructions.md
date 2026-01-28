@@ -21,6 +21,21 @@
 - Use functional components with TypeScript
 - Implement proper error boundaries when needed
 
+## Typography
+- Always use the Typography components from `app/components/Typography.tsx`
+- For headings: Use `<Heading level={1-6}>` component instead of raw h1-h6 tags
+- For body text: Use `<Text variant="body|caption|small">` component instead of raw p tags
+- Typography components ensure consistent styling and follow Figma design specs
+- Examples:
+  ```tsx
+  import { Heading, Text } from "@/app/components/Typography";
+  
+  <Heading level={1}>Page Title</Heading>
+  <Text variant="body">Main content text</Text>
+  <Text variant="caption">Secondary text</Text>
+  <Text variant="small">Small helper text</Text>
+  ```
+
 ## Styling
 - Use Tailwind CSS utility classes
 - Follow the existing color scheme (primary: #3CBCEC / oklch(0.75 0.11 210))

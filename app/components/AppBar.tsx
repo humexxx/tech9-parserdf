@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
-import ThemeToggle from "./ThemeToggle";
+import dynamic from "next/dynamic";
 import { version } from "../../package.json";
+
+const ThemeToggle = dynamic(() => import("./ThemeToggle"), { ssr: false });
 
 export default function AppBar() {
   return (

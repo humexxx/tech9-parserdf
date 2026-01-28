@@ -11,7 +11,6 @@ export default function ThemeToggle() {
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className="p-2 rounded-md border border-border hover:bg-accent transition-colors"
       aria-label="Toggle theme"
-      suppressHydrationWarning
     >
       {resolvedTheme === "dark" ? (
         <Sun className="h-5 w-5 text-foreground" />
