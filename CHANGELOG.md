@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/humexxx/tech9-parserdf/compare/v1.2.0...v1.3.0) (2026-02-02)
+
+
+### Features
+
+* parsing functionality with Grok and Gemini ([a33fd28](https://github.com/humexxx/tech9-parserdf/commit/a33fd2885fa6c56fc3ee91ac413f1333ebaeb589))
+
 # [1.2.0](https://github.com/humexxx/tech9-parserdf/compare/v1.1.0...v1.2.0) (2026-01-28)
 
 
