@@ -93,12 +93,12 @@ export function generateResumeHTML(data: ResumeData, format: string): string {
     }
     
     .skill-item {
-      font-size: 14px;
-      color: #171717;
-    }
-    
-    .skill-item:not(:last-child)::after {
-      content: ",";
+      font-size: 12px;
+      color: #18181b;
+      background-color: #dcf3fc;
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-block;
     }
     
     /* Experience */
