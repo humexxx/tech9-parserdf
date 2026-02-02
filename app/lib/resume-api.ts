@@ -40,15 +40,33 @@ export async function processResume(
   file: File,
   format: string
 ): Promise<ResumeData> {
-  // TODO: Implement LLM parsing logic here
-  // This will send the file to an API endpoint that processes it with LLM
-  // and returns the structured ResumeData
-  
-  // Simulate processing time
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  // For now, return mock data
-  return getMockResumeData(file.name);
+  try {
+    // Create FormData to send file to API
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Call the parse-resume API endpoint
+    const response = await fetch('/api/parse-resume', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.details || error.error || 'Failed to parse resume');
+    }
+
+    const result = await response.json();
+    
+    if (!result.success || !result.data) {
+      throw new Error('Invalid response from parse API');
+    }
+
+    return result.data;
+  } catch (error) {
+    console.error('Error processing resume:', error);
+    throw error;
+  }
 }
 
 export async function processResumes(
