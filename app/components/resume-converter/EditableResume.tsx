@@ -265,7 +265,9 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
             <div className="bg-[#E6F7FC] dark:bg-zinc-700 p-4 rounded">
               <div className="flex flex-wrap gap-2">
                 {displayData.skills.map((skill, idx) => (
-                  <span key={idx} className="text-sm">{skill}</span>
+                  <span key={idx} className="bg-white dark:bg-zinc-600 text-[#18181b] dark:text-zinc-200 text-sm px-3 py-1.5 rounded-md border border-gray-200 dark:border-zinc-500">
+                    {skill}
+                  </span>
                 ))}
               </div>
             </div>
@@ -275,123 +277,144 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Experience */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "experience" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "experience" ? "border border-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("experience")}
       >
         {editingSection !== "experience" && (
           <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
         )}
-        <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">EXPERIENCE</h2>
+        <h2 className="text-lg font-bold text-[#3CBCEC] mb-2 tracking-[2px]">EXPERIENCE</h2>
         {editingSection === "experience" ? (
           <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
-            {editedData.experience.map((exp, idx) => (
-              <div key={idx} className="mb-4 p-3 border border-[#3CBCEC] rounded relative">
-                <button
-                  onClick={() => {
-                    const newExp = [...editedData.experience];
-                    newExp.splice(idx, 1);
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                  title="Remove"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <input
-                  type="text"
-                  value={exp.company}
-                  onChange={(e) => {
-                    const newExp = [...editedData.experience];
-                    newExp[idx] = { ...newExp[idx], company: e.target.value };
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="font-bold text-sm w-full border-b border-gray-300 mb-1 focus:outline-none"
-                  placeholder="Company Name"
-                />
-                <input
-                  type="text"
-                  value={exp.location}
-                  onChange={(e) => {
-                    const newExp = [...editedData.experience];
-                    newExp[idx] = { ...newExp[idx], location: e.target.value };
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="text-sm w-full border-b border-gray-300 mb-1 focus:outline-none"
-                  placeholder="Location"
-                />
-                <input
-                  type="text"
-                  value={exp.title}
-                  onChange={(e) => {
-                    const newExp = [...editedData.experience];
-                    newExp[idx] = { ...newExp[idx], title: e.target.value };
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="text-sm w-full border-b border-gray-300 mb-1 focus:outline-none italic"
-                  placeholder="Job Title"
-                />
-                <input
-                  type="text"
-                  value={exp.period}
-                  onChange={(e) => {
-                    const newExp = [...editedData.experience];
-                    newExp[idx] = { ...newExp[idx], period: e.target.value };
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="text-xs text-gray-600 dark:text-zinc-400 w-full border-b border-gray-300 mb-1 focus:outline-none"
-                  placeholder="MONTH 20XX - PRESENT"
-                />
-                <textarea
-                  value={exp.description}
-                  onChange={(e) => {
-                    const newExp = [...editedData.experience];
-                    newExp[idx] = { ...newExp[idx], description: e.target.value };
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="text-sm w-full border border-gray-300 rounded p-2 mb-1 focus:outline-none min-h-[60px]"
-                  placeholder="Description"
-                />
-                <input
-                  type="text"
-                  value={exp.technologies}
-                  onChange={(e) => {
-                    const newExp = [...editedData.experience];
-                    newExp[idx] = { ...newExp[idx], technologies: e.target.value };
-                    setEditedData(prev => ({ ...prev, experience: newExp }));
-                  }}
-                  className="text-sm w-full border-b border-gray-300 focus:outline-none"
-                  placeholder="Technologies Used"
-                />
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                const newExp = [...editedData.experience];
-                newExp.push({
-                  company: "[Company Name]",
-                  location: "Location",
-                  title: "Job Title",
-                  period: "MONTH 20XX - PRESENT",
-                  description: "[Description]",
-                  technologies: "[Technologies]"
-                });
-                setEditedData(prev => ({ ...prev, experience: newExp }));
-              }}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded text-sm text-gray-600 hover:border-[#3CBCEC] hover:text-[#3CBCEC] transition-colors flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add New Experience
-            </button>
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="space-y-4">
+              {editedData.experience.map((exp, idx) => (
+                <div key={idx} className="bg-[#f8f7f3] p-3 rounded flex flex-col gap-2">
+                  {/* Company Name with Delete */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={exp.company}
+                      onChange={(e) => {
+                        const newExp = [...editedData.experience];
+                        newExp[idx] = { ...newExp[idx], company: e.target.value };
+                        setEditedData(prev => ({ ...prev, experience: newExp }));
+                      }}
+                      className="flex-1 font-bold text-[11px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                      placeholder="[Company Name]"
+                    />
+                    <button
+                      onClick={() => {
+                        const newExp = [...editedData.experience];
+                        newExp.splice(idx, 1);
+                        setEditedData(prev => ({ ...prev, experience: newExp }));
+                      }}
+                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Location and Job Title */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={exp.location}
+                      onChange={(e) => {
+                        const newExp = [...editedData.experience];
+                        newExp[idx] = { ...newExp[idx], location: e.target.value };
+                        setEditedData(prev => ({ ...prev, experience: newExp }));
+                      }}
+                      className="flex-1 text-[10px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                      placeholder="Location"
+                    />
+                    <input
+                      type="text"
+                      value={exp.title}
+                      onChange={(e) => {
+                        const newExp = [...editedData.experience];
+                        newExp[idx] = { ...newExp[idx], title: e.target.value };
+                        setEditedData(prev => ({ ...prev, experience: newExp }));
+                      }}
+                      className="flex-1 text-[10px] text-[#52525b] italic bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                      placeholder="Job Title"
+                    />
+                  </div>
+
+                  {/* Period */}
+                  <input
+                    type="text"
+                    value={exp.period}
+                    onChange={(e) => {
+                      const newExp = [...editedData.experience];
+                      newExp[idx] = { ...newExp[idx], period: e.target.value };
+                      setEditedData(prev => ({ ...prev, experience: newExp }));
+                    }}
+                    className="w-full text-[10px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                    placeholder="MONTH 20XX - PRESENT"
+                  />
+
+                  {/* Description */}
+                  <textarea
+                    value={exp.description}
+                    onChange={(e) => {
+                      const newExp = [...editedData.experience];
+                      newExp[idx] = { ...newExp[idx], description: e.target.value };
+                      setEditedData(prev => ({ ...prev, experience: newExp }));
+                    }}
+                    className="w-full text-[10px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC] min-h-[80px] resize-y"
+                    placeholder="[Insert 4-5 bullet points detailing a problem, action, and result of that action]\nTechnologies Used"
+                  />
+
+                  {/* Technologies */}
+                  <input
+                    type="text"
+                    value={exp.technologies}
+                    onChange={(e) => {
+                      const newExp = [...editedData.experience];
+                      newExp[idx] = { ...newExp[idx], technologies: e.target.value };
+                      setEditedData(prev => ({ ...prev, experience: newExp }));
+                    }}
+                    className="w-full text-[10px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                    placeholder="[Insert 5-6 main technologies you used during your time here separated by comma]"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Add Experience Button */}
+            <div className="border-b border-[rgba(62,190,237,0.18)] pb-4 flex justify-center">
+              <button
+                onClick={() => {
+                  const newExp = [...editedData.experience];
+                  newExp.push({
+                    company: "[Company Name]",
+                    location: "Location",
+                    title: "Job Title",
+                    period: "MONTH 20XX - PRESENT",
+                    description: "[Description]",
+                    technologies: "[Technologies]"
+                  });
+                  setEditedData(prev => ({ ...prev, experience: newExp }));
+                }}
+                className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center gap-1.5 px-4 py-1.5 hover:border-[#3CBCEC] hover:bg-gray-50 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="text-[11px] text-[#18181b]">Add Experience</span>
+              </button>
+            </div>
+
+            {/* Cancel and Save Buttons */}
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleCancel}
-                className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                className="px-4 py-1.5 text-[10px] bg-white border border-[#d4d4d4] rounded hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1 text-sm bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+                className="px-4 py-1.5 text-[10px] bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors font-medium"
               >
                 Save
               </button>
@@ -413,100 +436,104 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Education */}
       <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "education" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
+        className={`mb-6 cursor-pointer relative group ${editingSection === "education" ? "border border-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("education")}
       >
         {editingSection !== "education" && (
           <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
         )}
-        <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">EDUCATION</h2>
+        <h2 className="text-lg font-bold text-[#3CBCEC] mb-2 tracking-[2px]">EDUCATION</h2>
         {editingSection === "education" ? (
-          <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
-            {editedData.education.map((edu, idx) => (
-              <div key={idx} className="p-3 border border-[#3CBCEC] rounded relative">
-                <button
-                  onClick={() => {
-                    const newEdu = [...editedData.education];
-                    newEdu.splice(idx, 1);
-                    setEditedData(prev => ({ ...prev, education: newEdu }));
-                  }}
-                  className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                  title="Remove"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <input
-                  type="text"
-                  value={edu.school}
-                  onChange={(e) => {
-                    const newEdu = [...editedData.education];
-                    newEdu[idx] = { ...newEdu[idx], school: e.target.value };
-                    setEditedData(prev => ({ ...prev, education: newEdu }));
-                  }}
-                  className="font-bold text-sm w-full border-b border-gray-300 mb-1 focus:outline-none"
-                  placeholder="School Name"
-                />
-                <input
-                  type="text"
-                  value={edu.location}
-                  onChange={(e) => {
-                    const newEdu = [...editedData.education];
-                    newEdu[idx] = { ...newEdu[idx], location: e.target.value };
-                    setEditedData(prev => ({ ...prev, education: newEdu }));
-                  }}
-                  className="text-sm w-full border-b border-gray-300 mb-1 focus:outline-none"
-                  placeholder="Location"
-                />
-                <input
-                  type="text"
-                  value={edu.degree}
-                  onChange={(e) => {
-                    const newEdu = [...editedData.education];
-                    newEdu[idx] = { ...newEdu[idx], degree: e.target.value };
-                    setEditedData(prev => ({ ...prev, education: newEdu }));
-                  }}
-                  className="text-sm w-full border-b border-gray-300 mb-1 focus:outline-none italic"
-                  placeholder="Degree"
-                />
-                <input
-                  type="text"
-                  value={edu.period}
-                  onChange={(e) => {
-                    const newEdu = [...editedData.education];
-                    newEdu[idx] = { ...newEdu[idx], period: e.target.value };
-                    setEditedData(prev => ({ ...prev, education: newEdu }));
-                  }}
-                  className="text-xs text-gray-600 dark:text-zinc-400 w-full border-b border-gray-300 focus:outline-none"
-                  placeholder="MONTH 20XX - MONTH 20XX"
-                />
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                const newEdu = [...editedData.education];
-                newEdu.push({
-                  school: "[School Name]",
-                  location: "Location",
-                  degree: "Degree",
-                  period: "MONTH 20XX - MONTH 20XX"
-                });
-                setEditedData(prev => ({ ...prev, education: newEdu }));
-              }}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded text-sm text-gray-600 hover:border-[#3CBCEC] hover:text-[#3CBCEC] transition-colors flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Add New Education
-            </button>
-            <div className="flex justify-end gap-2 mt-2">
+          <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-4">
+              {editedData.education.map((edu, idx) => (
+                <div key={idx} className="bg-[#f8f7f3] p-3 rounded flex flex-col gap-2">
+                  {/* School Name with Delete */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={edu.school}
+                      onChange={(e) => {
+                        const newEdu = [...editedData.education];
+                        newEdu[idx] = { ...newEdu[idx], school: e.target.value };
+                        setEditedData(prev => ({ ...prev, education: newEdu }));
+                      }}
+                      className="flex-1 font-bold text-[11px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                      placeholder="School Name - Location"
+                    />
+                    <button
+                      onClick={() => {
+                        const newEdu = [...editedData.education];
+                        newEdu.splice(idx, 1);
+                        setEditedData(prev => ({ ...prev, education: newEdu }));
+                      }}
+                      className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Degree */}
+                  <input
+                    type="text"
+                    value={edu.degree}
+                    onChange={(e) => {
+                      const newEdu = [...editedData.education];
+                      newEdu[idx] = { ...newEdu[idx], degree: e.target.value };
+                      setEditedData(prev => ({ ...prev, education: newEdu }));
+                    }}
+                    className="w-full text-[11px] text-[#52525b] italic bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                    placeholder="Degree"
+                  />
+
+                  {/* Period */}
+                  <input
+                    type="text"
+                    value={edu.period}
+                    onChange={(e) => {
+                      const newEdu = [...editedData.education];
+                      newEdu[idx] = { ...newEdu[idx], period: e.target.value };
+                      setEditedData(prev => ({ ...prev, education: newEdu }));
+                    }}
+                    className="w-full text-[10px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC]"
+                    placeholder="YEAR - YEAR"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Add Education Button */}
+            <div className="border-b border-[rgba(62,190,237,0.18)] pb-4 flex justify-center">
+              <button
+                onClick={() => {
+                  const newEdu = [...editedData.education];
+                  newEdu.push({
+                    school: "[School Name]",
+                    location: "Location",
+                    degree: "Degree",
+                    period: "YEAR - YEAR"
+                  });
+                  setEditedData(prev => ({ ...prev, education: newEdu }));
+                }}
+                className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center gap-1.5 px-4 py-1.5 hover:border-[#3CBCEC] hover:bg-gray-50 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="text-[11px] text-[#18181b]">Add Education</span>
+              </button>
+            </div>
+
+            {/* Cancel and Save Buttons */}
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleCancel}
-                className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                className="px-4 py-1.5 text-[10px] bg-white border border-[#d4d4d4] rounded hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1 text-sm bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+                className="px-4 py-1.5 text-[10px] bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors font-medium"
               >
                 Save
               </button>
@@ -641,7 +668,9 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
             <div className="bg-[#E6F7FC] dark:bg-zinc-700 p-4 rounded">
               <div className="flex flex-wrap gap-2">
                 {displayData.skills.map((skill, idx) => (
-                  <span key={idx} className="text-sm">{skill}</span>
+                  <span key={idx} className="bg-white dark:bg-zinc-600 text-[#18181b] dark:text-zinc-200 text-sm px-3 py-1.5 rounded-md border border-gray-200 dark:border-zinc-500">
+                    {skill}
+                  </span>
                 ))}
               </div>
             </div>
