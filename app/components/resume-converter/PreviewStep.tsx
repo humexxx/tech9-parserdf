@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, Download } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, Download, AlertCircle, RefreshCw } from "lucide-react";
 import { FilePreview, ResumeData } from "@/app/types/resume";
 import { processResume } from "@/app/lib/resume-api";
 import EditableResume from "./EditableResume";
@@ -23,32 +23,66 @@ export default function PreviewStep({ files, selectedFormats, onDownload }: Prev
   );
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const processedFilesRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    // Process files one by one
     const loadResumes = async () => {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      const filesToProcess = files.filter(f => !processedFilesRef.current.has(f.name));
+
+      if (filesToProcess.length === 0) return;
+
+      filesToProcess.forEach(f => processedFilesRef.current.add(f.name));
+
+      for (let i = 0; i < filesToProcess.length; i++) {
+        const file = filesToProcess[i];
         const format = selectedFormats?.[file.name] || "skill-at-top";
+        const originalIndex = files.findIndex(f => f.name === file.name);
 
-        // Process single resume
-        const data = await processResume(file, format);
+        if (originalIndex === -1) continue;
 
-        // Update state immediately after each file is processed
-        setFilePreviews(prev => {
-          const updated = [...prev];
-          updated[i] = {
-            ...updated[i],
-            status: "completed",
-            data: data
-          };
-          return updated;
-        });
+        try {
+          const data = await processResume(file, format);
+
+          setFilePreviews(prev => {
+            const updated = [...prev];
+            if (updated[originalIndex]) {
+              updated[originalIndex] = {
+                ...updated[originalIndex],
+                status: "completed",
+                data: data
+              };
+            }
+            return updated;
+          });
+        } catch (error) {
+          console.error(`Error processing ${file.name}:`, error);
+          // Update state with error
+          setFilePreviews(prev => {
+            const updated = [...prev];
+            if (updated[originalIndex]) {
+              updated[originalIndex] = {
+                ...updated[originalIndex],
+                status: "error",
+                errorMessage: error instanceof Error ? error.message : "Failed to process resume"
+              };
+            }
+            return updated;
+          });
+        }
       }
     };
 
     loadResumes();
-  }, [files, selectedFormats]);
+  }, [files]);
+
+  useEffect(() => {
+    if (!selectedFormats) return;
+
+    setFilePreviews(prev => prev.map(fp => ({
+      ...fp,
+      format: selectedFormats[fp.fileName] || fp.format
+    })));
+  }, [selectedFormats]);
 
   const selectedFile = filePreviews[selectedFileIndex];
 
@@ -94,11 +128,16 @@ export default function PreviewStep({ files, selectedFormats, onDownload }: Prev
               ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700"
               : selectedFileIndex === index
                 ? "bg-[rgba(62,190,237,0.18)] dark:bg-[rgba(62,190,237,0.1)] border-[#3CBCEC]"
-                : "bg-[#f9f9f9] dark:bg-zinc-900 border-[#d4d4d4] dark:border-zinc-700"
+                : filePreview.status === "error"
+                  ? "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30"
+                  : "bg-[#f9f9f9] dark:bg-zinc-900 border-[#d4d4d4] dark:border-zinc-700"
               }`}
           >
             {filePreview.status === "loading" && (
               <Loader2 className="w-4 h-4 animate-spin text-[#3CBCEC]" />
+            )}
+            {filePreview.status === "error" && (
+              <AlertCircle className="w-4 h-4 text-red-500" />
             )}
             <span className={`font-inconsolata font-bold text-[12px] leading-4 truncate ${filePreview.status === "loading"
               ? "text-gray-400 dark:text-zinc-600"
@@ -140,6 +179,25 @@ export default function PreviewStep({ files, selectedFormats, onDownload }: Prev
               <p className="font-inconsolata text-[16px] text-[#52525b] dark:text-zinc-500">
                 Processing {selectedFile.fileName}...
               </p>
+            </div>
+          ) : selectedFile?.status === "error" ? (
+            <div className="flex flex-col items-center gap-4 mt-20 text-center max-w-lg px-6">
+              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                <AlertCircle className="w-8 h-8 text-red-500" />
+              </div>
+              <h3 className="font-inconsolata font-bold text-xl text-gray-800 dark:text-zinc-200">
+                Parsing Failed
+              </h3>
+              <p className="font-inconsolata text-gray-600 dark:text-zinc-400">
+                {selectedFile.errorMessage || "There was an error processing this resume."}
+              </p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 rounded-md transition-colors text-sm font-medium"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Try Again
+              </button>
             </div>
           ) : selectedFile?.data ? (
             <EditableResume

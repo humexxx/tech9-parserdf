@@ -24,9 +24,10 @@ export interface ResumeData {
 
 export interface FilePreview {
   fileName: string;
-  status: "loading" | "completed";
+  status: "loading" | "completed" | "error";
   format: string;
   data?: ResumeData;
+  errorMessage?: string;
 }
 
 export type EditableSection = "name" | "location" | "linkedIn" | "summary" | "skills" | "experience" | "education" | "awards" | "projects" | null;
