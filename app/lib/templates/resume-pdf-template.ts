@@ -179,8 +179,8 @@ export function generateResumeHTML(data: ResumeData, format: string, hiddenSecti
     
     <!-- Name and Contact Info -->
     <h1>${data.name}</h1>
-    <p class="contact-info">${data.location}</p>
-    <p class="contact-info">${data.linkedIn}</p>
+    ${!hiddenSections.includes("location") ? `<p class="contact-info">${data.location?.startsWith('Location:') ? data.location : `Location: ${data.location}`}</p>` : ''}
+    ${!hiddenSections.includes("linkedIn") ? `<p class="contact-info">${data.linkedIn?.startsWith('LinkedIn:') ? data.linkedIn : `LinkedIn Profile: ${data.linkedIn}`}</p>` : ''}
     
     <!-- Summary -->
     ${data.summary && !hiddenSections.includes("summary") ? `
