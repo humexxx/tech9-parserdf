@@ -67,6 +67,29 @@ export function constructGeminiMessages(fileName: string, mimeType: string, base
   ];
 }
 
+export function constructAnthropicMessages(fileName: string, mimeType: string, base64File: string): LLMMessage[] {
+  return [
+    {
+      role: "system",
+      content: RESUME_PARSING_PROMPT
+    },
+    {
+      role: "user",
+      parts: [
+        {
+          text: `Parse this resume file: ${fileName}`
+        },
+        {
+          inlineData: {
+            mimeType: mimeType,
+            data: base64File
+          }
+        }
+      ]
+    }
+  ];
+}
+
 export function parseResponse(content: string) {
   const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/```\n?([\s\S]*?)\n?```/);
   const jsonString = jsonMatch ? jsonMatch[1] : content;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import Image from "next/image";
 import { ResumeData, EditableSection } from "@/app/types/resume";
@@ -9,12 +9,53 @@ interface EditableResumeProps {
   data: ResumeData;
   format: string;
   onDataChange?: (data: ResumeData) => void;
+  onHiddenSectionsChange?: (sections: string[]) => void;
 }
 
-export default function EditableResume({ data, format, onDataChange }: EditableResumeProps) {
+export default function EditableResume({ data, format, onDataChange, onHiddenSectionsChange }: EditableResumeProps) {
   const [editingSection, setEditingSection] = useState<EditableSection>(null);
   const [editedData, setEditedData] = useState<ResumeData>(data);
   const [originalData, setOriginalData] = useState<ResumeData>(data);
+  
+  // Initialize hidden sections with empty sections
+  const [hiddenSections, setHiddenSections] = useState<Set<keyof ResumeData>>(() => {
+    const initialHidden = new Set<keyof ResumeData>();
+    
+    // Check each section and hide if empty
+    if (!data.location || data.location.trim() === '' || data.location === 'Location:') {
+      initialHidden.add('location');
+    }
+    if (!data.linkedIn || data.linkedIn.trim() === '' || data.linkedIn === 'LinkedIn Profile:') {
+      initialHidden.add('linkedIn');
+    }
+    if (!data.summary || data.summary.trim() === '') {
+      initialHidden.add('summary');
+    }
+    if (!data.skills || data.skills.length === 0) {
+      initialHidden.add('skills');
+    }
+    if (!data.experience || data.experience.length === 0) {
+      initialHidden.add('experience');
+    }
+    if (!data.education || data.education.length === 0) {
+      initialHidden.add('education');
+    }
+    if (!data.awards || data.awards.trim() === '') {
+      initialHidden.add('awards');
+    }
+    if (!data.projects || data.projects.trim() === '') {
+      initialHidden.add('projects');
+    }
+    
+    return initialHidden;
+  });
+
+  // Notify parent of initially hidden sections
+  useEffect(() => {
+    if (hiddenSections.size > 0) {
+      onHiddenSectionsChange?.(Array.from(hiddenSections));
+    }
+  }, []);
 
   const displayData = editedData;
 
@@ -48,6 +89,23 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
     onDataChange?.(editedData);
   };
 
+  const handleDeleteSection = (section: keyof ResumeData) => {
+    if (section === 'name') return;
+
+    const newHiddenSections = new Set(hiddenSections);
+    newHiddenSections.add(section);
+    setHiddenSections(newHiddenSections);
+    setEditingSection(null);
+    onHiddenSectionsChange?.(Array.from(newHiddenSections));
+  };
+
+  const handleRestoreSection = (section: keyof ResumeData) => {
+    const newHiddenSections = new Set(hiddenSections);
+    newHiddenSections.delete(section);
+    setHiddenSections(newHiddenSections);
+    onHiddenSectionsChange?.(Array.from(newHiddenSections));
+  };
+
   return (
     <div className="w-full max-w-175 p-12 bg-white dark:bg-zinc-800">
       {/* Header */}
@@ -67,7 +125,7 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       <hr className="border-t border-gray-300 mb-8" />
 
       {/* Name */}
-      <div 
+      <div
         className={`mb-2 cursor-pointer relative group ${editingSection === "name" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
         onClick={() => handleSectionClick("name")}
       >
@@ -103,14 +161,40 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
           <h1 className="text-3xl font-bold">{displayData.name}</h1>
         )}
       </div>
-      
+
       {/* Location */}
-      <div 
-        className={`cursor-pointer relative group ${editingSection === "location" ? "ring-2 ring-[#3CBCEC] rounded p-2 mb-1" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2 mb-1"}`}
-        onClick={(e) => { e.stopPropagation(); handleSectionClick("location"); }}
+      <div
+        className={`cursor-pointer relative group ${
+          hiddenSections.has("location") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2 mb-1" 
+            : editingSection === "location" 
+              ? "ring-2 ring-[#3CBCEC] rounded p-2 mb-1" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2 mb-1"
+        }`}
+        onClick={(e) => { e.stopPropagation(); !hiddenSections.has("location") && handleSectionClick("location"); }}
       >
-        {editingSection !== "location" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "location" && !hiddenSections.has("location") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("location");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("location") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("location");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         {editingSection === "location" ? (
           <div onClick={(e) => e.stopPropagation()}>
@@ -141,17 +225,47 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
             </div>
           </div>
         ) : (
-          <p className="text-sm">{displayData.location}</p>
+          <p className="text-sm">
+            {displayData.location?.startsWith('Location:') 
+              ? displayData.location 
+              : `Location: ${displayData.location}`}
+          </p>
         )}
       </div>
 
       {/* LinkedIn */}
-      <div 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "linkedIn" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-        onClick={(e) => { e.stopPropagation(); handleSectionClick("linkedIn"); }}
+      <div
+        className={`mb-6 cursor-pointer relative group ${
+          hiddenSections.has("linkedIn") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+            : editingSection === "linkedIn" 
+              ? "ring-2 ring-[#3CBCEC] rounded p-2" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+        }`}
+        onClick={(e) => { e.stopPropagation(); !hiddenSections.has("linkedIn") && handleSectionClick("linkedIn"); }}
       >
-        {editingSection !== "linkedIn" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "linkedIn" && !hiddenSections.has("linkedIn") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("linkedIn");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("linkedIn") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("linkedIn");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         {editingSection === "linkedIn" ? (
           <div onClick={(e) => e.stopPropagation()}>
@@ -182,17 +296,47 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
             </div>
           </div>
         ) : (
-          <p className="text-sm">{displayData.linkedIn}</p>
+          <p className="text-sm">
+            {displayData.linkedIn?.startsWith('LinkedIn Profile:') 
+              ? displayData.linkedIn 
+              : `LinkedIn: ${displayData.linkedIn}`}
+          </p>
         )}
       </div>
 
       {/* Summary */}
-      <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "summary" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-        onClick={() => handleSectionClick("summary")}
+      <section
+        className={`mb-6 cursor-pointer relative group ${
+          hiddenSections.has("summary") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+            : editingSection === "summary" 
+              ? "ring-2 ring-[#3CBCEC] rounded p-2" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+        }`}
+        onClick={() => !hiddenSections.has("summary") && handleSectionClick("summary")}
       >
-        {editingSection !== "summary" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "summary" && !hiddenSections.has("summary") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("summary");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("summary") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("summary");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SUMMARY</h2>
         {editingSection === "summary" ? (
@@ -225,12 +369,38 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Skills - Top position */}
       {format === "skill-at-top" && (
-        <section 
-          className={`mb-6 cursor-pointer relative group ${editingSection === "skills" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-          onClick={() => handleSectionClick("skills")}
+        <section
+          className={`mb-6 cursor-pointer relative group ${
+            hiddenSections.has("skills") 
+              ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+              : editingSection === "skills" 
+                ? "ring-2 ring-[#3CBCEC] rounded p-2" 
+                : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+          }`}
+          onClick={() => !hiddenSections.has("skills") && handleSectionClick("skills")}
         >
-          {editingSection !== "skills" && (
-            <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+          {editingSection !== "skills" && !hiddenSections.has("skills") && (
+            <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Pencil className="w-4 h-4 text-gray-400" />
+              <Trash2
+                className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteSection("skills");
+                }}
+              />
+            </div>
+          )}
+          {hiddenSections.has("skills") && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRestoreSection("skills");
+              }}
+              className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+            >
+              Show
+            </button>
           )}
           <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SKILLS</h2>
           {editingSection === "skills" ? (
@@ -276,12 +446,38 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       )}
 
       {/* Experience */}
-      <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "experience" ? "border border-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-        onClick={() => handleSectionClick("experience")}
+      <section
+        className={`mb-6 cursor-pointer relative group ${
+          hiddenSections.has("experience") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+            : editingSection === "experience" 
+              ? "border border-[#3CBCEC] rounded p-2" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+        }`}
+        onClick={() => !hiddenSections.has("experience") && handleSectionClick("experience")}
       >
-        {editingSection !== "experience" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "experience" && !hiddenSections.has("experience") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("experience");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("experience") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("experience");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         <h2 className="text-lg font-bold text-[#3CBCEC] mb-2 tracking-[2px]">EXPERIENCE</h2>
         {editingSection === "experience" ? (
@@ -435,12 +631,38 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       </section>
 
       {/* Education */}
-      <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "education" ? "border border-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-        onClick={() => handleSectionClick("education")}
+      <section
+        className={`mb-6 cursor-pointer relative group ${
+          hiddenSections.has("education") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+            : editingSection === "education" 
+              ? "border border-[#3CBCEC] rounded p-2" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+        }`}
+        onClick={() => !hiddenSections.has("education") && handleSectionClick("education")}
       >
-        {editingSection !== "education" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "education" && !hiddenSections.has("education") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("education");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("education") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("education");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         <h2 className="text-lg font-bold text-[#3CBCEC] mb-2 tracking-[2px]">EDUCATION</h2>
         {editingSection === "education" ? (
@@ -552,12 +774,38 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       </section>
 
       {/* Awards */}
-      <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "awards" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-        onClick={() => handleSectionClick("awards")}
+      <section
+        className={`mb-6 cursor-pointer relative group ${
+          hiddenSections.has("awards") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+            : editingSection === "awards" 
+              ? "ring-2 ring-[#3CBCEC] rounded p-2" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+        }`}
+        onClick={() => !hiddenSections.has("awards") && handleSectionClick("awards")}
       >
-        {editingSection !== "awards" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "awards" && !hiddenSections.has("awards") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("awards");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("awards") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("awards");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SPECIAL AWARDS/CERTIFICATIONS</h2>
         {editingSection === "awards" ? (
@@ -589,12 +837,38 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
       </section>
 
       {/* Projects */}
-      <section 
-        className={`mb-6 cursor-pointer relative group ${editingSection === "projects" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-        onClick={() => handleSectionClick("projects")}
+      <section
+        className={`mb-6 cursor-pointer relative group ${
+          hiddenSections.has("projects") 
+            ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+            : editingSection === "projects" 
+              ? "ring-2 ring-[#3CBCEC] rounded p-2" 
+              : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+        }`}
+        onClick={() => !hiddenSections.has("projects") && handleSectionClick("projects")}
       >
-        {editingSection !== "projects" && (
-          <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+        {editingSection !== "projects" && !hiddenSections.has("projects") && (
+          <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Pencil className="w-4 h-4 text-gray-400" />
+            <Trash2
+              className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSection("projects");
+              }}
+            />
+          </div>
+        )}
+        {hiddenSections.has("projects") && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRestoreSection("projects");
+            }}
+            className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+          >
+            Show
+          </button>
         )}
         <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">PROJECT SPECIFICATIONS</h2>
         {editingSection === "projects" ? (
@@ -628,12 +902,38 @@ export default function EditableResume({ data, format, onDataChange }: EditableR
 
       {/* Skills - Bottom position */}
       {format === "skill-at-bottom" && (
-        <section 
-          className={`mb-6 cursor-pointer relative group ${editingSection === "skills" ? "ring-2 ring-[#3CBCEC] rounded p-2" : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"}`}
-          onClick={() => handleSectionClick("skills")}
+        <section
+          className={`mb-6 cursor-pointer relative group ${
+            hiddenSections.has("skills") 
+              ? "opacity-40 bg-gray-100 dark:bg-zinc-900 rounded p-2" 
+              : editingSection === "skills" 
+                ? "ring-2 ring-[#3CBCEC] rounded p-2" 
+                : "hover:bg-gray-50 dark:hover:bg-zinc-700 rounded p-2"
+          }`}
+          onClick={() => !hiddenSections.has("skills") && handleSectionClick("skills")}
         >
-          {editingSection !== "skills" && (
-            <Pencil className="absolute right-2 top-2 w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+          {editingSection !== "skills" && !hiddenSections.has("skills") && (
+            <div className="absolute right-2 top-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Pencil className="w-4 h-4 text-gray-400" />
+              <Trash2
+                className="w-4 h-4 text-red-400 hover:text-red-500 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteSection("skills");
+                }}
+              />
+            </div>
+          )}
+          {hiddenSections.has("skills") && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRestoreSection("skills");
+              }}
+              className="absolute right-2 top-2 px-3 py-1 text-xs bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+            >
+              Show
+            </button>
           )}
           <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SKILLS</h2>
           {editingSection === "skills" ? (

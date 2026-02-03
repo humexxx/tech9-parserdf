@@ -7,6 +7,7 @@ interface DownloadPDFRequest {
   resumeData: ResumeData;
   format: string;
   fileName: string;
+  hiddenSections?: string[];
 }
 
 // URL to the Chromium binary package hosted in /public
@@ -51,7 +52,7 @@ async function getChromiumPath(): Promise<string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as DownloadPDFRequest;
-    const { resumeData, format, fileName } = body;
+    const { resumeData, format, fileName, hiddenSections = [] } = body;
 
     if (!resumeData || !format || !fileName) {
       return NextResponse.json(
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     const page = await browser.newPage();
 
     // Generate HTML and set content
-    const htmlContent = generateResumeHTML(resumeData, format);
+    const htmlContent = generateResumeHTML(resumeData, format, hiddenSections);
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
     // Generate PDF

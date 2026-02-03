@@ -28,6 +28,8 @@ export interface FilePreview {
   format: string;
   data?: ResumeData;
   errorMessage?: string;
+  hiddenSections?: string[];
 }
+
 
 export type EditableSection = "name" | "location" | "linkedIn" | "summary" | "skills" | "experience" | "education" | "awards" | "projects" | null;
