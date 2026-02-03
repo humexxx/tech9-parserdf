@@ -1,6 +1,6 @@
 import { ResumeData } from "@/app/types/resume";
 
-export function generateResumeHTML(data: ResumeData, format: string): string {
+export function generateResumeHTML(data: ResumeData, format: string, hiddenSections: string[] = []): string {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -183,13 +183,15 @@ export function generateResumeHTML(data: ResumeData, format: string): string {
     <p class="contact-info">${data.linkedIn}</p>
     
     <!-- Summary -->
+    ${data.summary && !hiddenSections.includes("summary") ? `
     <section>
       <h2>SUMMARY</h2>
       <p class="summary">${data.summary}</p>
     </section>
+    ` : ''}
     
     <!-- Skills - Top Position -->
-    ${format === "skill-at-top" ? `
+    ${format === "skill-at-top" && data.skills && data.skills.length > 0 && !hiddenSections.includes("skills") ? `
     <section class="skills-section">
       <h2>SKILLS</h2>
       <div class="skills-container">
@@ -201,6 +203,7 @@ export function generateResumeHTML(data: ResumeData, format: string): string {
     ` : ''}
     
     <!-- Experience -->
+    ${data.experience && data.experience.length > 0 && !hiddenSections.includes("experience") ? `
     <section>
       <h2>EXPERIENCE</h2>
       ${data.experience.map(exp => `
@@ -214,8 +217,10 @@ export function generateResumeHTML(data: ResumeData, format: string): string {
         </div>
       `).join('')}
     </section>
+    ` : ''}
     
     <!-- Education -->
+    ${data.education && data.education.length > 0 && !hiddenSections.includes("education") ? `
     <section>
       <h2>EDUCATION</h2>
       ${data.education.map(edu => `
@@ -227,15 +232,18 @@ export function generateResumeHTML(data: ResumeData, format: string): string {
         </div>
       `).join('')}
     </section>
+    ` : ''}
     
     <!-- Awards -->
+    ${data.awards && !hiddenSections.includes("awards") ? `
     <section>
       <h2>SPECIAL AWARDS/CERTIFICATIONS</h2>
       <p class="text-content">${data.awards}</p>
     </section>
+    ` : ''}
     
     <!-- Projects -->
-    ${data.projects ? `
+    ${data.projects && !hiddenSections.includes("projects") ? `
     <section>
       <h2>PROJECT SPECIFICATIONS</h2>
       <p class="text-content">${data.projects}</p>
@@ -243,7 +251,7 @@ export function generateResumeHTML(data: ResumeData, format: string): string {
     ` : ''}
     
     <!-- Skills - Bottom Position -->
-    ${format === "skill-at-bottom" ? `
+    ${format === "skill-at-bottom" && !hiddenSections.includes("skills") ? `
     <section class="skills-section">
       <h2>SKILLS</h2>
       <div class="skills-container">

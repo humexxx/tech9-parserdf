@@ -100,7 +100,8 @@ export async function processResumes(
 export async function downloadResume(
   resumeData: ResumeData,
   format: string,
-  fileName: string
+  fileName: string,
+  hiddenSections: string[] = []
 ): Promise<void> {
   try {
     // Make POST request to PDF generation API
@@ -113,6 +114,7 @@ export async function downloadResume(
         resumeData,
         format,
         fileName,
+        hiddenSections,
       }),
     });
 

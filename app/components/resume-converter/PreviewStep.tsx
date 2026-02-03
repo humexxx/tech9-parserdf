@@ -17,7 +17,7 @@ interface PreviewStepProps {
   files: File[];
   selectedFormats?: Record<string, string>;
   onEdit?: () => void;
-  onDownload: (resumeData: ResumeData, fileName: string) => Promise<void>;
+  onDownload: (resumeData: ResumeData, fileName: string, hiddenSections: string[]) => Promise<void>;
 }
 
 export default function PreviewStep({
@@ -137,6 +137,17 @@ export default function PreviewStep({
     });
   };
 
+  const handleHiddenSectionsChange = (sections: string[]) => {
+    setFilePreviews((prev) => {
+      const updated = [...prev];
+      updated[selectedFileIndex] = {
+        ...updated[selectedFileIndex],
+        hiddenSections: sections,
+      };
+      return updated;
+    });
+  };
+
   const handleDownload = async () => {
     if (!selectedFile?.data || isDownloading) return;
 
@@ -145,7 +156,7 @@ export default function PreviewStep({
     try {
       const fileName =
         editableFileNames[selectedFileIndex] || selectedFile.fileName;
-      await onDownload(selectedFile.data, fileName);
+      await onDownload(selectedFile.data, fileName, selectedFile.hiddenSections || []);
     } catch (error) {
       console.error("Failed to download resume:", error);
     } finally {
@@ -163,7 +174,7 @@ export default function PreviewStep({
         const filePreview = filePreviews[i];
         if (filePreview.status === "completed" && filePreview.data) {
           const fileName = editableFileNames[i] || filePreview.fileName;
-          await onDownload(filePreview.data, fileName);
+          await onDownload(filePreview.data, fileName, filePreview.hiddenSections || []);
         }
       }
     } catch (error) {
@@ -425,6 +436,7 @@ export default function PreviewStep({
               data={selectedFile.data}
               format={selectedFile.format}
               onDataChange={handleDataChange}
+              onHiddenSectionsChange={handleHiddenSectionsChange}
             />
           ) : null}
         </div>

@@ -50,10 +50,10 @@ export default function ResumeConverterPage() {
     setCurrentStep("formatSelection");
   };
 
-  const handleDownload = async (resumeData: ResumeData, fileName: string) => {
+  const handleDownload = async (resumeData: ResumeData, fileName: string, hiddenSections: string[]) => {
     try {
       const format = selectedFormats[fileName] || "skill-at-top";
-      await downloadResume(resumeData, format, fileName);
+      await downloadResume(resumeData, format, fileName, hiddenSections);
     } catch (error) {
       console.error("Error downloading resume:", error);
     }
