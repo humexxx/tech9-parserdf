@@ -1,3 +1,13 @@
+# [1.4.0](https://github.com/humexxx/tech9-parserdf/compare/v1.3.0...v1.4.0) (2026-02-03)
+
+
+### Features
+
+* add anthropic service ([f71d300](https://github.com/humexxx/tech9-parserdf/commit/f71d30031e501efcc20d5c7b22420b1d587acd92))
+* add reset functionality to resume converter and integrate reset button in preview step ([ef67ac3](https://github.com/humexxx/tech9-parserdf/commit/ef67ac31a643573ae07e0eebab1914a19fa18ba8))
+* add support for hidden sections in resume generation and editing ([31fd43c](https://github.com/humexxx/tech9-parserdf/commit/31fd43cbe5a2f3f1ddb5076afa42bff2539032b0))
+* enhance resume editing by initializing hidden sections and updating PDF generation logic ([74023e9](https://github.com/humexxx/tech9-parserdf/commit/74023e961831afd4b8d41895cc191d98c71d4dc3))
+
 # [1.3.0](https://github.com/humexxx/tech9-parserdf/compare/v1.2.0...v1.3.0) (2026-02-02)
 
 
