@@ -8,6 +8,7 @@ import UploadStep from "../components/resume-converter/UploadStep";
 import { Heading, Text } from "../components/Typography";
 import { ResumeData } from "../types/resume";
 import { downloadResume } from "../lib/resume-api";
+import { RotateCcw } from "lucide-react";
 
 type Step = "upload" | "fileList" | "formatSelection" | "preview";
 
@@ -59,6 +60,12 @@ export default function ResumeConverterPage() {
     }
   };
 
+  const handleReset = () => {
+    setSelectedFiles([]);
+    setSelectedFormats({});
+    setCurrentStep("upload");
+  };
+
   const getTitle = () => {
     switch (currentStep) {
       case "formatSelection":
@@ -85,7 +92,18 @@ export default function ResumeConverterPage() {
     <div className="flex pt-6 pl-6">
       <div className="flex flex-col gap-8 items-start w-full max-w-302.5">
         <div className="flex flex-col gap-2 items-start w-full">
-          <Heading level={1}>{getTitle()}</Heading>
+          <div className="flex items-center gap-4">
+            <Heading level={1}>{getTitle()}</Heading>
+            {currentStep === "preview" && (
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-md hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
+                title="Start Over"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            )}
+          </div>
           <Text>{getSubtitle()}</Text>
         </div>
 
