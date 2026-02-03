@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGrokCompletion } from "@/app/lib/grok-service";
 import { getGeminiCompletion } from "@/app/lib/gemini-service";
+import { getAnthropicCompletion } from "@/app/lib/anthropic-service";
 import { 
   validateFile, 
   getMimeType, 
   constructGrokMessages, 
-  constructGeminiMessages, 
+  constructGeminiMessages,
+  constructAnthropicMessages,
   parseResponse,
   normalizeError 
 } from "@/app/lib/resume-parser";
@@ -21,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const url = new URL(request.url);
-    const provider = url.searchParams.get("provider") || "gemini";
+    const provider = url.searchParams.get("provider") || "anthropic";
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -33,9 +35,12 @@ export async function POST(request: NextRequest) {
     if (provider === "grok") {
       const messages = constructGrokMessages(file.name, mimeType, base64File);
       content = await getGrokCompletion({ messages, temperature: 0.1 });
+    } else if (provider === "gemini") {
+        const messages = constructGeminiMessages(file.name, mimeType, base64File);
+        content = await getGeminiCompletion({ messages, temperature: 0.1 });
     } else {
-      const messages = constructGeminiMessages(file.name, mimeType, base64File);
-      content = await getGeminiCompletion({ messages, temperature: 0.1 });
+        const messages = constructAnthropicMessages(file.name, mimeType, base64File);
+        content = await getAnthropicCompletion({ messages, temperature: 0.1 });
     }
 
     const resumeData = parseResponse(content);
