@@ -183,10 +183,15 @@ export function generateResumeHTML(data: ResumeData, format: string, hiddenSecti
     ${!hiddenSections.includes("linkedIn") ? `<p class="contact-info">${data.linkedIn?.startsWith('LinkedIn:') ? data.linkedIn : `LinkedIn Profile: ${data.linkedIn}`}</p>` : ''}
     
     <!-- Summary -->
-    ${data.summary && !hiddenSections.includes("summary") ? `
+    ${data.summary && data.summary.length > 0 && !hiddenSections.includes("summary") ? `
     <section>
       <h2>SUMMARY</h2>
-      <p class="summary">${data.summary}</p>
+      ${data.summary.length === 1 
+        ? `<p class="summary">${data.summary[0]}</p>` 
+        : `<ul class="summary" style="margin-left: 20px; list-style-type: disc;">
+            ${data.summary.map(point => `<li style="margin-bottom: 4px;">${point}</li>`).join('')}
+           </ul>`
+      }
     </section>
     ` : ''}
     

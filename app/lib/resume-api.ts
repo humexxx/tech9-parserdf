@@ -4,7 +4,7 @@ const getMockResumeData = (fileName: string): ResumeData => ({
   name: "[Insert Name]",
   location: "Location:",
   linkedIn: "LinkedIn Profile:",
-  summary: "[Insert brief 3-4 sentence summary about the candidate with an emphasis on the client's requirements]",
+  summary: ["[Insert brief 3-4 sentence summary about the candidate with an emphasis on the client's requirements]"],
   experience: [
     {
       company: "[Most Recent Company Name]",

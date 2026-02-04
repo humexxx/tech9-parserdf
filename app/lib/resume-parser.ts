@@ -1,5 +1,6 @@
 import { RESUME_PARSING_PROMPT } from "@/app/lib/prompts";
 import { LLMMessage } from "@/app/types/llm";
+import { ResumeData } from "../types/resume";
 
 export function validateFile(file: File | null): string | null {
   if (!file) {
@@ -90,10 +91,12 @@ export function constructAnthropicMessages(fileName: string, mimeType: string, b
   ];
 }
 
-export function parseResponse(content: string) {
+export function parseResponse(content: string): ResumeData {
   const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/```\n?([\s\S]*?)\n?```/);
   const jsonString = jsonMatch ? jsonMatch[1] : content;
-  return JSON.parse(jsonString.trim());
+  const parsedData = JSON.parse(jsonString.trim()) as ResumeData;
+  parsedData.summary.push("test")
+  return parsedData;
 }
 
 export function normalizeError(error: unknown): string {
