@@ -2,7 +2,7 @@ export interface ResumeData {
   name: string;
   location: string;
   linkedIn: string;
-  summary: string;
+  summary: string[];
   experience: Array<{
     company: string;
     location: string;

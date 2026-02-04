@@ -28,7 +28,7 @@ export default function EditableResume({ data, format, onDataChange, onHiddenSec
     if (!data.linkedIn || data.linkedIn.trim() === '' || data.linkedIn === 'LinkedIn Profile:') {
       initialHidden.add('linkedIn');
     }
-    if (!data.summary || data.summary.trim() === '') {
+    if (!data.summary || data.summary.length === 0) {
       initialHidden.add('summary');
     }
     if (!data.skills || data.skills.length === 0) {
@@ -340,30 +340,78 @@ export default function EditableResume({ data, format, onDataChange, onHiddenSec
         )}
         <h2 className="text-lg font-bold text-[#3CBCEC] mb-2">SUMMARY</h2>
         {editingSection === "summary" ? (
-          <div onClick={(e) => e.stopPropagation()}>
-            <textarea
-              value={editedData?.summary || ""}
-              onChange={(e) => setEditedData(prev => ({ ...prev, summary: e.target.value }))}
-              className="text-sm w-full border border-[#3CBCEC] rounded p-2 focus:outline-none min-h-[80px]"
-              autoFocus
-            />
-            <div className="flex justify-end gap-2 mt-2">
+          <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-4">
+              {editedData.summary.map((point, idx) => (
+                <div key={idx} className="bg-[#f8f7f3] p-3 rounded flex gap-2">
+                  <textarea
+                    value={point}
+                    onChange={(e) => {
+                      const newSummary = [...editedData.summary];
+                      newSummary[idx] = e.target.value;
+                      setEditedData(prev => ({ ...prev, summary: newSummary }));
+                    }}
+                    className="flex-1 text-[10px] text-[#52525b] bg-white border border-[#d4d4d4] rounded-sm px-2 py-2 focus:outline-none focus:border-[#3CBCEC] min-h-[60px] resize-y"
+                    placeholder="Enter summary point..."
+                  />
+                  <button
+                    onClick={() => {
+                      const newSummary = editedData.summary.filter((_, i) => i !== idx);
+                      setEditedData(prev => ({ ...prev, summary: newSummary }));
+                    }}
+                    className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors self-start"
+                    title="Remove"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Summary Point Button */}
+            <div className="border-b border-[rgba(62,190,237,0.18)] pb-4 flex justify-center">
+              <button
+                onClick={() => {
+                  setEditedData(prev => ({
+                    ...prev,
+                    summary: [...prev.summary, ""]
+                  }));
+                }}
+                className="border-2 border-dashed border-gray-300 rounded flex items-center justify-center gap-1.5 px-4 py-1.5 hover:border-[#3CBCEC] hover:bg-gray-50 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                <span className="text-sm">Add Point</span>
+              </button>
+            </div>
+
+            {/* Cancel and Save Buttons */}
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleCancel}
-                className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                className="px-4 py-1.5 text-[10px] bg-white border border-[#d4d4d4] rounded hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-3 py-1 text-sm bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors"
+                className="px-4 py-1.5 text-[10px] bg-[#3CBCEC] text-white rounded hover:bg-[#2da5cc] transition-colors font-medium"
               >
                 Save
               </button>
             </div>
           </div>
         ) : (
-          <p className="text-sm">{displayData.summary}</p>
+          displayData.summary && displayData.summary.length > 0 && (
+            displayData.summary.length === 1 ? (
+              <p className="text-sm">{displayData.summary[0]}</p>
+            ) : (
+              <ul className="list-disc list-inside text-sm space-y-1">
+                {displayData.summary.map((point, idx) => (
+                  <li key={idx}>{point}</li>
+                ))}
+              </ul>
+            )
+          )
         )}
       </section>
 

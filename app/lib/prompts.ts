@@ -5,7 +5,7 @@ Return ONLY valid JSON in this exact structure:
   "name": "Full name of the candidate",
   "location": "City, State or Country",
   "linkedIn": "LinkedIn profile URL if available, otherwise empty string",
-  "summary": "Professional summary or objective (3-4 sentences)",
+  "summary": is a list ? [ "First summary point", "Second summary point", ... ] : ["Full summary paragraph"],
   "experience": [
     {
       "company": "Company name",
@@ -32,6 +32,7 @@ Return ONLY valid JSON in this exact structure:
 Important:
 - Extract ALL work experience entries
 - Extract ALL education entries
+- For summary: if it's bullet points, split into array items. If it's a paragraph, just put the whole paragraph as the first item in the array
 - For skills, create an array of individual skills
 - If a field is not found, use an empty string or empty array
 - Ensure all dates are in "MONTH YEAR" format
