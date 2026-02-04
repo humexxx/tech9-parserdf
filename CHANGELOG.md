@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/humexxx/tech9-parserdf/compare/v1.4.0...v1.5.0) (2026-02-04)
+
+
+### Features
+
+* update summary handling to support array format and enhance rendering in resume components ([c0996c0](https://github.com/humexxx/tech9-parserdf/commit/c0996c0e46b3b93a7020c01b040c9b05092e43f6))
+
 # [1.4.0](https://github.com/humexxx/tech9-parserdf/compare/v1.3.0...v1.4.0) (2026-02-03)
 
 
