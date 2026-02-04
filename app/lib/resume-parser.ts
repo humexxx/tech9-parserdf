@@ -95,7 +95,6 @@ export function parseResponse(content: string): ResumeData {
   const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/) || content.match(/```\n?([\s\S]*?)\n?```/);
   const jsonString = jsonMatch ? jsonMatch[1] : content;
   const parsedData = JSON.parse(jsonString.trim()) as ResumeData;
-  parsedData.summary.push("test")
   return parsedData;
 }
 
