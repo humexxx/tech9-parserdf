@@ -26,7 +26,7 @@ export default function SideNav() {
             key={item.id}
             href={item.href}
             className={`
-              w-44 h-10.25 px-6 py-3 flex items-center gap-2.5 text-left transition-colors
+              w-43.75 h-10.25 px-6 py-3 flex items-center gap-2.5 text-left transition-colors
               ${
                 isSelected
                   ? "bg-[#F8F7F3] dark:bg-zinc-900 border-r-[5px] border-r-black dark:border-r-white"

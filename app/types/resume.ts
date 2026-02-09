@@ -24,11 +24,13 @@ export interface ResumeData {
 
 export interface FilePreview {
   fileName: string;
+  originalFileName?: string; // Keep track of original file name for file lookup
   status: "loading" | "completed" | "error";
   format: string;
   data?: ResumeData;
   errorMessage?: string;
   hiddenSections?: string[];
+  resumeId?: string; // ID of saved resume in database
 }
 
 
