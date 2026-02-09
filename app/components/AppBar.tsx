@@ -21,7 +21,7 @@ export default function AppBar() {
           />
         </div>
         <div className="flex items-baseline gap-2">
-          <h1 className="text-xl font-semibold">| ParserDF</h1>
+          <h1 className="text-xl font-semibold pl-0.5">| ParserDF</h1>
           <span className="text-sm text-muted-foreground">v{version}</span>
         </div>
       </div>

@@ -8,6 +8,8 @@ import {
   RefreshCw,
   ChevronDown,
   Pencil,
+  Star,
+  Check,
 } from "lucide-react";
 import { FilePreview, ResumeData } from "@/app/types/resume";
 import { processResume } from "@/app/lib/resume-api";
@@ -28,6 +30,7 @@ export default function PreviewStep({
   const [filePreviews, setFilePreviews] = useState<FilePreview[]>(() =>
     files.map((file) => ({
       fileName: file.name,
+      originalFileName: file.name,
       status: "loading" as const,
       format: selectedFormats?.[file.name] || "skill-at-top",
     })),
@@ -40,8 +43,12 @@ export default function PreviewStep({
   >({});
   const [isEditingFileName, setIsEditingFileName] = useState(false);
   const [tempFileName, setTempFileName] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [originalFiles, setOriginalFiles] = useState<Record<string, File>>({});
+  const [favoriteStatus, setFavoriteStatus] = useState<Record<number, boolean>>({});
   const processedFilesRef = useRef<Set<string>>(new Set());
   const downloadMenuRef = useRef<HTMLDivElement>(null);
+  const resumeIdsRef = useRef<Record<string, string>>({});
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,17 +84,26 @@ export default function PreviewStep({
         try {
           const data = await processResume(file, format);
 
+          // Store original file for PDF encoding
+          setOriginalFiles((prev) => ({ ...prev, [file.name]: file }));
+
           setFilePreviews((prev) => {
             const updated = [...prev];
             if (updated[originalIndex]) {
               updated[originalIndex] = {
                 ...updated[originalIndex],
+                originalFileName: file.name,
                 status: "completed",
                 data: data,
               };
             }
             return updated;
           });
+
+          // Auto-save on initial load
+          if (data) {
+            await saveResume(file.name, data, format, [], file);
+          }
         } catch (error) {
           console.error(`Error processing ${file.name}:`, error);
           // Update state with error
@@ -125,7 +141,78 @@ export default function PreviewStep({
 
   const selectedFile = filePreviews[selectedFileIndex];
 
+  // Convert File to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Save resume to database
+  const saveResume = async (
+    fileName: string,
+    data: ResumeData,
+    format: string,
+    hiddenSections: string[],
+    originalFile: File,
+    resumeId?: string
+  ) => {
+    try {
+      setSaveStatus("saving");
+      const pdfBase64 = await fileToBase64(originalFile);
+
+      // Use ref to get the most up-to-date resumeId
+      const currentResumeId = resumeId || resumeIdsRef.current[fileName];
+
+      const response = await fetch("/api/resumes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: currentResumeId,
+          name: fileName,
+          resumeData: data,
+          originalPdf: pdfBase64,
+          format,
+          hiddenSections,
+          isFavorite: currentResumeId ? undefined : false,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to save resume");
+
+      const savedResume = await response.json();
+
+      // Store resumeId in ref for immediate access
+      resumeIdsRef.current[fileName] = savedResume.id;
+
+      // Update file preview with resume ID
+      setFilePreviews((prev) => {
+        const updated = [...prev];
+        const fileIndex = prev.findIndex((fp) => fp.fileName === fileName);
+        if (fileIndex !== -1) {
+          updated[fileIndex] = {
+            ...updated[fileIndex],
+            resumeId: savedResume.id,
+          };
+        }
+        return updated;
+      });
+
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Error saving resume:", error);
+      setSaveStatus("idle");
+    }
+  };
+
   const handleDataChange = (data: ResumeData) => {
+    const currentFile = filePreviews[selectedFileIndex];
+    const originalFile = originalFiles[currentFile?.originalFileName || currentFile?.fileName];
+    
     // Update the file preview data when user edits
     setFilePreviews((prev) => {
       const updated = [...prev];
@@ -135,9 +222,61 @@ export default function PreviewStep({
       };
       return updated;
     });
+
+    // Save immediately after data change
+    if (currentFile?.resumeId && originalFile) {
+      const currentResumeId = currentFile.resumeId || resumeIdsRef.current[currentFile.originalFileName || currentFile.fileName];
+      saveResume(
+        currentFile.fileName,
+        data,
+        currentFile.format,
+        currentFile.hiddenSections || [],
+        originalFile,
+        currentResumeId
+      );
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    const currentFile = filePreviews[selectedFileIndex];
+    if (!currentFile?.resumeId) return;
+
+    const currentFavorite = favoriteStatus[selectedFileIndex] || false;
+    const newFavoriteValue = !currentFavorite;
+
+    // Optimistic update - update UI immediately
+    setFavoriteStatus((prev) => ({
+      ...prev,
+      [selectedFileIndex]: newFavoriteValue,
+    }));
+
+    try {
+      const response = await fetch(`/api/resumes/${currentFile.resumeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isFavorite: newFavoriteValue,
+        }),
+      });
+
+      if (!response.ok) {
+        // Revert on error
+        setFavoriteStatus((prev) => ({
+          ...prev,
+          [selectedFileIndex]: currentFavorite,
+        }));
+        throw new Error("Failed to toggle favorite");
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      // State already reverted above
+    }
   };
 
   const handleHiddenSectionsChange = (sections: string[]) => {
+    const currentFile = filePreviews[selectedFileIndex];
+    const originalFile = originalFiles[currentFile?.originalFileName || currentFile?.fileName];
+    
     setFilePreviews((prev) => {
       const updated = [...prev];
       updated[selectedFileIndex] = {
@@ -146,6 +285,19 @@ export default function PreviewStep({
       };
       return updated;
     });
+
+    // Save immediately after hidden sections change
+    if (currentFile?.resumeId && originalFile && currentFile.data) {
+      const currentResumeId = currentFile.resumeId || resumeIdsRef.current[currentFile.originalFileName || currentFile.fileName];
+      saveResume(
+        currentFile.fileName,
+        currentFile.data,
+        currentFile.format,
+        sections,
+        originalFile,
+        currentResumeId
+      );
+    }
   };
 
   const handleDownload = async () => {
@@ -227,6 +379,21 @@ export default function PreviewStep({
         }
         return updated;
       });
+
+      // Save the new file name to database
+      const currentFile = filePreviews[selectedFileIndex];
+      const originalFile = originalFiles[currentFile?.originalFileName || currentFile?.fileName];
+      if (currentFile?.resumeId && originalFile && currentFile.data) {
+        const currentResumeId = currentFile.resumeId || resumeIdsRef.current[currentFile.originalFileName || currentFile.fileName];
+        saveResume(
+          fullFileName,
+          currentFile.data,
+          currentFile.format,
+          currentFile.hiddenSections || [],
+          originalFile,
+          currentResumeId
+        );
+      }
     }
     setIsEditingFileName(false);
     setTempFileName("");
@@ -245,15 +412,14 @@ export default function PreviewStep({
               setSelectedFileIndex(index);
             }}
             disabled={filePreview.status === "loading"}
-            className={`w-56 px-6 py-3 border flex items-center justify-start gap-2 transition-all ${
-              filePreview.status === "loading"
-                ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700"
-                : selectedFileIndex === index
-                  ? "bg-[rgba(62,190,237,0.18)] dark:bg-[rgba(62,190,237,0.1)] border-[#3CBCEC]"
-                  : filePreview.status === "error"
-                    ? "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30"
-                    : "bg-[#f9f9f9] dark:bg-zinc-900 border-[#d4d4d4] dark:border-zinc-700"
-            }`}
+            className={`w-56 px-6 py-3 border flex items-center justify-start gap-2 transition-all ${filePreview.status === "loading"
+              ? "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700"
+              : selectedFileIndex === index
+                ? "bg-[rgba(62,190,237,0.18)] dark:bg-[rgba(62,190,237,0.1)] border-[#3CBCEC]"
+                : filePreview.status === "error"
+                  ? "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900/30"
+                  : "bg-[#f9f9f9] dark:bg-zinc-900 border-[#d4d4d4] dark:border-zinc-700"
+              }`}
           >
             {filePreview.status === "loading" && (
               <Loader2 className="w-4 h-4 animate-spin text-[#3CBCEC]" />
@@ -262,13 +428,12 @@ export default function PreviewStep({
               <AlertCircle className="w-4 h-4 text-red-500" />
             )}
             <span
-              className={`font-inconsolata font-bold text-[12px] leading-4 truncate ${
-                filePreview.status === "loading"
-                  ? "text-gray-400 dark:text-zinc-600"
-                  : selectedFileIndex === index
-                    ? "text-black dark:text-zinc-200"
-                    : "text-black dark:text-zinc-200"
-              }`}
+              className={`font-inconsolata font-bold text-[12px] leading-4 truncate ${filePreview.status === "loading"
+                ? "text-gray-400 dark:text-zinc-600"
+                : selectedFileIndex === index
+                  ? "text-black dark:text-zinc-200"
+                  : "text-black dark:text-zinc-200"
+                }`}
             >
               {getDisplayFileName(filePreview.fileName, index)}
             </span>
@@ -281,11 +446,10 @@ export default function PreviewStep({
         {selectedFile?.status === "completed" && (
           <div className="flex items-center justify-between px-8 py-4 border-b border-[#e8e8e8] dark:border-zinc-700">
             <div
-              className={`cursor-pointer relative group px-4 pr-8 py-2 border rounded-sm transition-all ${
-                isEditingFileName
-                  ? "ring-2 ring-[#3CBCEC] border-[#3CBCEC]"
-                  : "border-[#d4d4d4] dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800"
-              }`}
+              className={`cursor-pointer relative group px-4 pr-8 py-2 border rounded-sm transition-all ${isEditingFileName
+                ? "ring-2 ring-[#3CBCEC] border-[#3CBCEC]"
+                : "border-[#d4d4d4] dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800"
+                }`}
               onClick={() => !isEditingFileName && handleStartEditingFileName()}
             >
               {!isEditingFileName && (
@@ -329,19 +493,79 @@ export default function PreviewStep({
               )}
             </div>
 
-            {/* Download button with optional dropdown */}
-            {allCompleted && (
-              <div className="relative" ref={downloadMenuRef}>
-                {files.length > 1 ? (
-                  <div className="flex bg-black text-white">
+            {/* Action buttons */}
+            <div className="flex items-center gap-3">
+              {/* Save status indicator */}
+              {saveStatus !== "idle" && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-zinc-400">
+                  {saveStatus === "saving" ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Saved</span>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Favorite button */}
+              {selectedFile.resumeId && (
+                <button
+                  onClick={handleToggleFavorite}
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+                  title={favoriteStatus[selectedFileIndex] ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <Star
+                    className={`w-5 h-5 ${favoriteStatus[selectedFileIndex]
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-400"
+                      }`}
+                  />
+                </button>
+              )}
+
+              {/* Download button with optional dropdown */}
+              {allCompleted && (
+                <div className="relative" ref={downloadMenuRef}>
+                  {files.length > 1 ? (
+                    <div className="flex bg-black text-white">
+                      <button
+                        onClick={handleDownload}
+                        disabled={isDownloading}
+                        className={`flex items-center gap-3 px-4 py-2 border-r border-white transition-colors ${isDownloading
+                          ? "opacity-75 cursor-not-allowed"
+                          : "hover:bg-zinc-800"
+                          }`}
+                      >
+                        <span className="font-inconsolata font-semibold text-[14px] leading-5">
+                          {isDownloading ? "Downloading..." : "Download"}
+                        </span>
+                        {isDownloading ? (
+                          <Loader2 className="w-6 h-6 animate-spin -rotate-90" />
+                        ) : (
+                          <Download className="w-6 h-6" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                        disabled={isDownloading}
+                        className="px-3 py-2 hover:bg-zinc-800 transition-colors disabled:opacity-75"
+                      >
+                        <ChevronDown className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       onClick={handleDownload}
                       disabled={isDownloading}
-                      className={`flex items-center gap-3 px-4 py-2 border-r border-white transition-colors ${
-                        isDownloading
-                          ? "opacity-75 cursor-not-allowed"
-                          : "hover:bg-zinc-800"
-                      }`}
+                      className={`flex items-center gap-3 px-4 py-2 bg-black text-white transition-colors ${isDownloading
+                        ? "opacity-75 cursor-not-allowed"
+                        : "hover:bg-zinc-800"
+                        }`}
                     >
                       <span className="font-inconsolata font-semibold text-[14px] leading-5">
                         {isDownloading ? "Downloading..." : "Download"}
@@ -352,54 +576,28 @@ export default function PreviewStep({
                         <Download className="w-6 h-6" />
                       )}
                     </button>
-                    <button
-                      onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-                      disabled={isDownloading}
-                      className="px-3 py-2 hover:bg-zinc-800 transition-colors disabled:opacity-75"
-                    >
-                      <ChevronDown className="w-5 h-5" />
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleDownload}
-                    disabled={isDownloading}
-                    className={`flex items-center gap-3 px-4 py-2 bg-black text-white transition-colors ${
-                      isDownloading
-                        ? "opacity-75 cursor-not-allowed"
-                        : "hover:bg-zinc-800"
-                    }`}
-                  >
-                    <span className="font-inconsolata font-semibold text-[14px] leading-5">
-                      {isDownloading ? "Downloading..." : "Download"}
-                    </span>
-                    {isDownloading ? (
-                      <Loader2 className="w-6 h-6 animate-spin -rotate-90" />
-                    ) : (
-                      <Download className="w-6 h-6" />
-                    )}
-                  </button>
-                )}
+                  )}
 
-                {/* Dropdown menu - only show for multiple files */}
-                {showDownloadMenu && files.length > 1 && (
-                  <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-zinc-800 border border-[#e8e8e8] dark:border-zinc-700 shadow-lg rounded-sm z-20">
-                    <button
-                      onClick={handleDownload}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 font-inconsolata text-[#18181b] dark:text-zinc-200"
-                    >
-                      Download Current
-                    </button>
-                    <button
-                      onClick={handleDownloadAll}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 font-inconsolata text-[#18181b] dark:text-zinc-200 border-t border-[#e8e8e8] dark:border-zinc-700"
-                    >
-                      Download All
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+                  {/* Dropdown menu - only show for multiple files */}
+                  {showDownloadMenu && files.length > 1 && (
+                    <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-zinc-800 border border-[#e8e8e8] dark:border-zinc-700 shadow-lg rounded-sm z-20">
+                      <button
+                        onClick={handleDownload}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 font-inconsolata text-[#18181b] dark:text-zinc-200"
+                      >
+                        Download Current
+                      </button>
+                      <button
+                        onClick={handleDownloadAll}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-zinc-700 font-inconsolata text-[#18181b] dark:text-zinc-200 border-t border-[#e8e8e8] dark:border-zinc-700"
+                      >
+                        Download All
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
