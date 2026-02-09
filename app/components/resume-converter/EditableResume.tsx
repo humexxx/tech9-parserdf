@@ -16,39 +16,52 @@ export default function EditableResume({ data, format, onDataChange, onHiddenSec
   const [editingSection, setEditingSection] = useState<EditableSection>(null);
   const [editedData, setEditedData] = useState<ResumeData>(data);
   const [originalData, setOriginalData] = useState<ResumeData>(data);
+  const [prevData, setPrevData] = useState<ResumeData>(data);
   
-  // Initialize hidden sections with empty sections
-  const [hiddenSections, setHiddenSections] = useState<Set<keyof ResumeData>>(() => {
+  // Function to calculate which sections should be hidden
+  const calculateHiddenSections = (resumeData: ResumeData) => {
     const initialHidden = new Set<keyof ResumeData>();
     
     // Check each section and hide if empty
-    if (!data.location || data.location.trim() === '' || data.location === 'Location:') {
+    if (!resumeData.location || resumeData.location.trim() === '' || resumeData.location === 'Location:') {
       initialHidden.add('location');
     }
-    if (!data.linkedIn || data.linkedIn.trim() === '' || data.linkedIn === 'LinkedIn Profile:') {
+    if (!resumeData.linkedIn || resumeData.linkedIn.trim() === '' || resumeData.linkedIn === 'LinkedIn Profile:') {
       initialHidden.add('linkedIn');
     }
-    if (!data.summary || data.summary.length === 0) {
+    if (!resumeData.summary || resumeData.summary.length === 0) {
       initialHidden.add('summary');
     }
-    if (!data.skills || data.skills.length === 0) {
+    if (!resumeData.skills || resumeData.skills.length === 0) {
       initialHidden.add('skills');
     }
-    if (!data.experience || data.experience.length === 0) {
+    if (!resumeData.experience || resumeData.experience.length === 0) {
       initialHidden.add('experience');
     }
-    if (!data.education || data.education.length === 0) {
+    if (!resumeData.education || resumeData.education.length === 0) {
       initialHidden.add('education');
     }
-    if (!data.awards || data.awards.trim() === '') {
+    if (!resumeData.awards || resumeData.awards.trim() === '') {
       initialHidden.add('awards');
     }
-    if (!data.projects || data.projects.trim() === '') {
+    if (!resumeData.projects || resumeData.projects.trim() === '') {
       initialHidden.add('projects');
     }
     
     return initialHidden;
-  });
+  };
+  
+  const [hiddenSections, setHiddenSections] = useState<Set<keyof ResumeData>>(() => calculateHiddenSections(data));
+  
+  // Detect when data prop changes (when switching between files)
+  // This pattern is recommended by React to avoid cascading renders in useEffect
+  if (data !== prevData) {
+    setPrevData(data);
+    setEditedData(data);
+    setOriginalData(data);
+    setEditingSection(null);
+    setHiddenSections(calculateHiddenSections(data));
+  }
 
   // Notify parent of initially hidden sections
   useEffect(() => {
