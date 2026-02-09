@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/humexxx/tech9-parserdf/compare/v1.6.0...v1.6.1) (2026-02-09)
+
+
+### Bug Fixes
+
+* make some changes on how to edit data ([0644e36](https://github.com/humexxx/tech9-parserdf/commit/0644e36bc71c16098863dd155de06e3bcbd87213))
+
 # [1.6.0](https://github.com/humexxx/tech9-parserdf/compare/v1.5.1...v1.6.0) (2026-02-09)
 
 
