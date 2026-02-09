@@ -529,14 +529,14 @@ export default function PreviewStep({
               )}
 
               {/* Download button with optional dropdown */}
-              {allCompleted && (
+              {selectedFile?.data && (
                 <div className="relative" ref={downloadMenuRef}>
                   {files.length > 1 ? (
                     <div className="flex bg-black text-white">
                       <button
                         onClick={handleDownload}
-                        disabled={isDownloading}
-                        className={`flex items-center gap-3 px-4 py-2 border-r border-white transition-colors ${isDownloading
+                        disabled={isDownloading || !allCompleted}
+                        className={`flex items-center gap-3 px-4 py-2 border-r border-white transition-colors ${isDownloading || !allCompleted
                           ? "opacity-75 cursor-not-allowed"
                           : "hover:bg-zinc-800"
                           }`}
@@ -552,7 +552,7 @@ export default function PreviewStep({
                       </button>
                       <button
                         onClick={() => setShowDownloadMenu(!showDownloadMenu)}
-                        disabled={isDownloading}
+                        disabled={isDownloading || !allCompleted}
                         className="px-3 py-2 hover:bg-zinc-800 transition-colors disabled:opacity-75"
                       >
                         <ChevronDown className="w-5 h-5" />
@@ -561,8 +561,8 @@ export default function PreviewStep({
                   ) : (
                     <button
                       onClick={handleDownload}
-                      disabled={isDownloading}
-                      className={`flex items-center gap-3 px-4 py-2 bg-black text-white transition-colors ${isDownloading
+                      disabled={isDownloading || !allCompleted}
+                      className={`flex items-center gap-3 px-4 py-2 bg-black text-white transition-colors ${isDownloading || !allCompleted
                         ? "opacity-75 cursor-not-allowed"
                         : "hover:bg-zinc-800"
                         }`}
