@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/humexxx/tech9-parserdf/compare/v1.5.1...v1.6.0) (2026-02-09)
+
+
+### Features
+
+* add database ([744b205](https://github.com/humexxx/tech9-parserdf/commit/744b205d42bd4d0f600153bc8852353fdb5bb320))
+
 ## [1.5.1](https://github.com/humexxx/tech9-parserdf/compare/v1.5.0...v1.5.1) (2026-02-04)
 
 
